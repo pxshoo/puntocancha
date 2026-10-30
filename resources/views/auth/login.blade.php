@@ -1,47 +1,13 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('login') }}">
+<x-auth-shell title="Vuelve a la cancha." subtitle="Inicia sesión para continuar con la gestión de tu club." :selection="$selection">
+    @if (session('status'))<p role="status" class="mb-5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{{ session('status') }}</p>@endif
+    @if ($errors->any())<ul role="alert" class="mb-5 list-inside list-disc rounded-lg border border-rose-400/30 bg-rose-400/10 p-3 text-sm text-rose-200">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>@endif
+    <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+        <div><label for="email" class="mb-2 block text-sm font-medium">Correo electrónico</label><input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="w-full rounded-lg border-slate-700 bg-slate-900 px-4 py-3 text-white placeholder:text-slate-600 focus:border-lime-300 focus:ring-lime-300" placeholder="tu@club.cl" @if ($errors->has('email')) aria-invalid="true" @endif></div>
+        <div x-data="{ visible: false }"><label for="password" class="mb-2 block text-sm font-medium">Contraseña</label><div class="relative"><input id="password" name="password" type="password" :type="visible ? 'text' : 'password'" required autocomplete="current-password" class="w-full rounded-lg border-slate-700 bg-slate-900 px-4 py-3 pr-24 text-white focus:border-lime-300 focus:ring-lime-300"><button type="button" @click="visible = !visible" :aria-pressed="visible" aria-controls="password" class="absolute inset-y-0 right-0 px-4 text-xs font-medium text-slate-400 hover:text-lime-300" x-text="visible ? 'Ocultar' : 'Mostrar'">Mostrar</button></div></div>
+        <div class="flex flex-wrap items-center justify-between gap-3 text-xs"><label class="flex cursor-pointer items-center gap-2"><input type="checkbox" name="remember" @checked(old('remember')) class="rounded border-slate-600 bg-slate-900 text-emerald-500 focus:ring-lime-300">Recordarme</label><a href="{{ route('password.request') }}" class="text-slate-400 hover:text-lime-300">¿Olvidaste tu contraseña?</a></div>
+        <button type="submit" class="flex w-full items-center justify-center gap-3 rounded-lg bg-lime-300 px-5 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-lime-200 focus:ring-2 focus:ring-lime-300 focus:ring-offset-2 focus:ring-offset-slate-950">Iniciar sesión <span aria-hidden="true">→</span></button>
     </form>
-</x-guest-layout>
+    <p class="mt-6 text-center text-sm text-slate-400">¿Primera vez en PuntoCancha? <a href="{{ route('register') }}" class="font-semibold text-lime-300 hover:underline">Crea tu cuenta</a></p>
+    <p class="mt-4 text-center text-[11px] text-slate-500">Iniciar sesión no realiza un cobro ni cambia tu suscripción.</p>
+</x-auth-shell>

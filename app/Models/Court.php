@@ -8,7 +8,7 @@ class Court extends Model
 {
     use BelongsToClub, \Illuminate\Database\Eloquent\Factories\HasFactory;
 
-    protected $fillable = ['name', 'default_hourly_rate', 'is_active'];
+    protected $fillable = ['name', 'default_hourly_rate', 'is_active', 'sport_type', 'surface_type', 'is_covered', 'setup_key'];
 
     protected function casts(): array
     {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\PlanSelection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,9 +15,9 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request, PlanSelection $plans): View
     {
-        return view('auth.login');
+        return view('auth.login', ['selection' => $plans->capture($request)]);
     }
 
     /**
@@ -27,6 +28,10 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        if ($request->user()->role === 'club_admin' && ! $request->user()->onboarding_completed) {
+            return redirect()->route('onboarding.step1');
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

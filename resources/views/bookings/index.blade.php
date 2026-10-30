@@ -1,6 +1,9 @@
 <x-app-layout>
     <x-slot name="header"><h2 class="font-semibold text-xl">Agenda de canchas</h2></x-slot>
     <div class="max-w-7xl mx-auto p-6 space-y-6">
+        @if (auth()->user()->club->onboarding_completed_at)
+            <section class="rounded-xl border border-emerald-200 bg-emerald-50 p-4"><h3 class="text-sm font-semibold text-emerald-900">Enlace público de tu club</h3><a class="mt-2 block break-all text-sm text-emerald-800 underline" href="{{ route('public.bookings', auth()->user()->club->slug) }}">{{ route('public.bookings', auth()->user()->club->slug) }}</a></section>
+        @endif
         @if (session('success')) <p role="status">{{ session('success') }}</p> @endif
         @if (session('error')) <p role="alert">{{ session('error') }}</p> @endif
         @if ($errors->any())

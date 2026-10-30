@@ -3,12 +3,22 @@
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/clubes/{club:slug}/reservas', PublicBookingController::class)->name('public.bookings');
+Route::middleware('auth')->prefix('onboarding')->name('onboarding.')->group(function () {
+    Route::get('/paso-1', [OnboardingController::class, 'step1'])->name('step1');
+    Route::post('/paso-1', [OnboardingController::class, 'saveStep1'])->name('save-step1');
+    Route::get('/paso-2', [OnboardingController::class, 'step2'])->name('step2');
+    Route::post('/completar', [OnboardingController::class, 'complete'])->name('complete');
 });
 
 Route::get('/dashboard', [AnalyticsController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');

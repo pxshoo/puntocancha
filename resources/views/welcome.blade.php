@@ -11,13 +11,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-950 font-['Inter',sans-serif] text-slate-100 antialiased selection:bg-lime-300 selection:text-slate-950" x-data="{ annual: false }">
-    @php
-        $plans = [
-            ['name' => 'Club Básico', 'price' => '35.000', 'annual' => '28.000', 'total' => '336.000', 'description' => 'El primer gran paso para poner tu club en orden.', 'cta' => 'Elegir Plan Básico', 'features' => ['Hasta 2 canchas activas', 'Portal de reservas online', 'POS básico: hasta 25 productos', 'Alertas de stock bajo', 'Soporte vía email']],
-            ['name' => 'Club Pro', 'price' => '65.000', 'annual' => '52.000', 'total' => '624.000', 'description' => 'Para clubes con alto flujo y un quiosco que no para.', 'cta' => 'Comenzar con Pro', 'features' => ['Hasta 6 canchas activas', 'Portal de reservas personalizado para clientes', 'POS ilimitado + cuentas abiertas por cancha', 'Control de stock y alerta de reposición', 'Dashboard de ingresos, costos y margen bruto', 'Hasta 3 cuentas de recepcionista/cajero', 'Soporte prioritario por WhatsApp']],
-            ['name' => 'Complejo Premium', 'price' => '110.000', 'annual' => '88.000', 'total' => '1.056.000', 'description' => 'Toda la potencia para grandes recintos multideporte.', 'cta' => 'Contactar para Premium', 'features' => ['Canchas ilimitadas', 'Todas las funciones Pro incluidas', 'Reporte financiero consolidado y flujo de caja', 'Multi-bodega para cafetería y tienda de pádel', 'Cuentas de personal y staff ilimitadas', 'Asistencia 24/7 y onboarding guiado']],
-        ];
-    @endphp
+    @php($plans = config('plans'))
     <svg class="hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <symbol id="pc-court" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18M3 7h18M3 17h18"/></symbol>
         <symbol id="pc-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
@@ -102,13 +96,13 @@
             <div class="relative mx-auto max-w-7xl"><div class="text-center"><p class="text-xs font-bold uppercase tracking-[0.2em] text-lime-300">Una inversión que juega a tu favor</p><h2 class="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Un plan para cada cancha.</h2><p class="mt-4 text-sm text-slate-400">Suscripción fija. Sin comisiones por reserva. Sin sorpresas.</p></div>
                 <div class="my-10 flex flex-col items-center gap-3"><div class="inline-flex rounded-full border border-slate-700 bg-slate-900 p-1" role="group" aria-label="Frecuencia de facturación"><button type="button" @click="annual = false" :aria-pressed="!annual" :class="!annual ? 'bg-white text-slate-950' : 'text-slate-400'" class="rounded-full px-6 py-2.5 text-sm font-semibold transition">Mensual</button><button type="button" @click="annual = true" :aria-pressed="annual" :class="annual ? 'bg-white text-slate-950' : 'text-slate-400'" class="rounded-full px-6 py-2.5 text-sm font-semibold transition">Anual</button></div><p class="text-xs font-medium text-lime-300">↳ Ahorra un 20% pagando anual</p></div>
                 <div class="grid items-stretch gap-6 lg:grid-cols-3">
-                    @foreach ($plans as $plan)
+                    @foreach ($plans as $planKey => $plan)
                         <article class="relative flex flex-col rounded-2xl border p-7 sm:p-8 {{ $loop->index === 1 ? 'border-emerald-400 bg-slate-900 ring-1 ring-emerald-400' : 'border-slate-800 bg-slate-900/50' }}">
                             @if ($loop->index === 1)<span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-lime-300 px-4 py-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-950">Más popular</span>@endif
                             <h3 class="text-lg font-bold">{{ $plan['name'] }}</h3><p class="mt-3 min-h-10 text-xs leading-relaxed text-slate-400">{{ $plan['description'] }}</p>
                             <div class="mt-7 flex items-baseline gap-1" aria-live="polite"><span class="text-4xl font-extrabold tracking-tight" x-text="annual ? '$'.concat('{{ $plan['annual'] }}') : '$'.concat('{{ $plan['price'] }}')">&#36;{{ $plan['price'] }}</span><span class="text-xs text-slate-400">CLP / mes</span></div>
                             <p class="mt-2 min-h-8 text-[11px] text-slate-400" x-text="annual ? 'Cobro anual: $'.concat('{{ $plan['total'] }} CLP') : 'Facturación mensual'">Facturación mensual</p>
-                            <a href="{{ $loop->last ? 'https://wa.me/56931403167?text=Hola%2C%20quiero%20conocer%20el%20plan%20Complejo%20Premium%20de%20PuntoCancha' : route('register') }}" class="mt-5 rounded-lg px-4 py-3.5 text-center text-sm font-bold transition {{ $loop->index === 1 ? 'bg-lime-300 text-slate-950 hover:bg-lime-200' : 'border border-slate-600 hover:border-lime-300 hover:text-lime-300' }}">{{ $plan['cta'] }}</a>
+                            <a href="{{ route('login', ['plan' => $planKey, 'billing' => 'monthly']) }}" :href="'{{ route('login', ['plan' => $planKey]) }}' + '&billing=' + (annual ? 'annual' : 'monthly')" class="mt-5 rounded-lg px-4 py-3.5 text-center text-sm font-bold transition {{ $loop->index === 1 ? 'bg-lime-300 text-slate-950 hover:bg-lime-200' : 'border border-slate-600 hover:border-lime-300 hover:text-lime-300' }}">{{ $plan['cta'] }}</a>
                             <div class="my-7 border-t border-slate-800"></div><p class="mb-4 text-[10px] uppercase tracking-widest text-slate-500">Tu club incluye</p><ul class="space-y-4">@foreach ($plan['features'] as $feature)<li class="flex gap-3 text-xs leading-relaxed text-slate-300"><svg class="h-4 w-4 shrink-0 text-lime-300" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="#pc-check"/></svg>{{ $feature }}</li>@endforeach</ul>
                         </article>
                     @endforeach

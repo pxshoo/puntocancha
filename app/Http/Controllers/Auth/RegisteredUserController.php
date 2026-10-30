@@ -3,50 +3,38 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\RegisterClubRequest;
+use App\Models\Plan;
+use App\Services\PlanSelection;
+use App\Services\RegistrationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
-    public function create(): View
+    public function create(Request $request, PlanSelection $plans): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'selection' => $plans->capture($request),
+            'availablePlans' => Plan::orderBy('id')->get(),
+        ]);
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
-     */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterClubRequest $request, RegistrationService $service, PlanSelection $plans): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $user = DB::transaction(fn () => User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]));
-
+        $data = $request->validated();
+        $plans->capture($request);
+        $selection = $request->session()->get('selected_plan', ['key' => 'basic', 'billing' => 'monthly']);
+        $user = $service->register($data, $selection['key'], $selection['billing']);
         event(new Registered($user));
-
         Auth::login($user);
+        $request->session()->regenerate();
+        $plan = isset($data['plan_id']) ? Plan::findOrFail($data['plan_id']) : Plan::where('slug', $selection['key'])->firstOrFail();
+        $request->session()->put('selected_plan', ['key' => $plan->slug, 'billing' => $selection['billing']]);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('onboarding.step1');
     }
 }

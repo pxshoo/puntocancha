@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'club_name', 'phone'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,7 +22,7 @@ class User extends Authenticatable
     {
         static::creating(function (User $user) {
             if (! $user->club_id) {
-                $user->club_id = Club::create(['name' => 'Club de '.$user->name])->id;
+                $user->club_id = Club::create(['name' => $user->club_name ?: 'Club de '.$user->name])->id;
             }
         });
     }
@@ -42,6 +42,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'onboarding_completed' => 'boolean',
         ];
     }
 }
