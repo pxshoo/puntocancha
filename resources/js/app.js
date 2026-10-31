@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import clubWeather from './club-weather';
 
 window.Alpine = Alpine;
 
@@ -47,5 +48,7 @@ Alpine.data('themeToggle', () => ({
         window.PuntoCanchaTheme.set(this.dark ? 'light' : 'dark');
     },
 }));
+
+Alpine.data('clubWeather', clubWeather);
 
 Alpine.start();

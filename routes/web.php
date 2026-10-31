@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClubBrandingController;
 use App\Http\Controllers\ClubLogoController;
 use App\Http\Controllers\ClubSettingsController;
+use App\Http\Controllers\ClubWeatherController;
 use App\Http\Controllers\CourtController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OnboardingController;
@@ -24,6 +25,7 @@ Route::get('/', function () {
 Route::get('/clubes/{club:slug}/reservas', PublicBookingController::class)->name('public.bookings');
 Route::get('/media/clubes/{club:slug}/logo/{version}', ClubLogoController::class)->whereUuid('version')->name('club.logo');
 Route::get('/explorar', [PlayerExplorarController::class, 'index'])->name('player.explore');
+Route::get('/club/{slug}/clima', ClubWeatherController::class)->middleware('throttle:60,1')->name('player.weather');
 Route::get('/club/{slug}', [PlayerExplorarController::class, 'showClub'])->name('player.club');
 Route::post('/pagos/webpay', [WebpayController::class, 'store'])->middleware('throttle:10,1')->name('webpay.store');
 Route::match(['get', 'post'], '/pagos/webpay/retorno', [WebpayController::class, 'callback'])->middleware('throttle:60,1')->name('webpay.return');
