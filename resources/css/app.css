@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --brand-primary: 5 150 105;
+        --brand-hover: 4 120 87;
+        --brand-content: 4 120 87;
+        --brand-ring: 16 185 129;
+        --brand-on: 255 255 255;
+    }
+    .dark {
+        --brand-primary: 190 242 100;
+        --brand-hover: 217 249 157;
+        --brand-content: 190 242 100;
+        --brand-ring: 190 242 100;
+        --brand-on: 2 6 23;
+    }
+}
+@layer base {
+    :where(a, button, summary, input, select, textarea):focus-visible {
+        outline: 2px solid rgb(var(--brand-ring));
+        outline-offset: 3px;
+    }
+    :where(button, a, summary, input, select, textarea) {
+        @apply transition-all duration-200 ease-in-out;
+    }
+    :where(input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea) {
+        @apply rounded-xl;
+    }
+    dialog[open] {
+        @apply animate-in fade-in zoom-in-95 duration-150;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}
+@layer components {
+    .action-feedback {
+        @apply shadow-sm hover:shadow-lg motion-safe:hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none;
+    }
+}

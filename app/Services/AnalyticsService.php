@@ -16,7 +16,7 @@ class AnalyticsService
     public function summary(CarbonImmutable $from, CarbonImmutable $to): array
     {
         $until = $to->addDay()->startOfDay();
-        $bookings = Booking::where('start_time', '>=', $from)->where('start_time', '<', $until)->where('status', '!=', 'canceled');
+        $bookings = Booking::where('start_time', '>=', $from)->where('start_time', '<', $until)->whereNotIn('status', ['canceled', 'pending_payment']);
         $sales = Sale::where('created_at', '>=', $from)->where('created_at', '<', $until)->whereIn('status', ['paid', 'open']);
 
         $rental = (clone $bookings)->selectRaw('COUNT(*) AS count, COALESCE(SUM(total_price), 0) AS amount, COALESCE(SUM(deposit_paid), 0) AS deposits')->first();

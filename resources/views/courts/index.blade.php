@@ -1,0 +1,27 @@
+<x-app-layout>
+    <x-slot name="header"><div class="flex flex-wrap items-center justify-between gap-4"><div><h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Canchas y tarifas</h2><p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Administra tus espacios deportivos y el precio por hora.</p></div>@if(auth()->user()->role === 'club_admin')<a class=" bg-brand text-brand-on    font-bold text-brand-on hover:bg-brand-hover inline-flex min-h-14 items-center justify-center rounded-xl px-7 py-4 text-base font-bold shadow-sm shadow-emerald-900/10 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2" href="{{ route('courts.create') }}">+ Agregar cancha</a>@endif</div></x-slot>
+    <div class="mx-auto max-w-7xl space-y-6 p-5 sm:p-8">
+        <x-operation-messages />
+        <x-club-publication-notice />
+        <div class="flex flex-wrap justify-between gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 text-sm"><p><span class="font-semibold text-brand-content">{{ $activeCount }}</span> canchas activas</p><p class="text-slate-600 dark:text-slate-400">{{ $subscription?->plan?->name ?? 'Cuenta existente' }} · {{ $subscription ? ($subscription->plan->court_limit === null ? 'Sin límite de canchas' : 'Hasta '.$subscription->plan->court_limit.' canchas activas') : 'Capacidad inicial: 2 canchas activas (se conserva la capacidad existente)' }}</p></div>
+        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            @forelse ($courts as $court)
+                <article class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div class="relative flex h-32 items-center justify-center border-b border-slate-200 dark:border-slate-800 bg-gradient-to-br from-emerald-100 dark:from-emerald-950 to-white dark:to-slate-900">
+                        <svg class="h-20 w-32 text-emerald-400/60" viewBox="0 0 160 90" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="5" width="150" height="80" rx="3"/><path d="M80 5v80M5 22h150M5 68h150M40 22v46m80-46v46M40 45h80"/></svg>
+                        <span class="absolute right-3 top-3 rounded-full border px-2.5 py-1 text-[10px] {{ $court->is_active ? 'border-emerald-400/30 bg-emerald-400/10 text-brand-content' : 'border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' }}">{{ $court->is_active ? 'Activa' : 'Inactiva' }}</span>
+                    </div>
+                    <div class="space-y-4 p-5"><div><p class="text-[10px] font-semibold uppercase tracking-widest text-brand-content">{{ ['padel' => 'Pádel', 'futbolito' => 'Futbolito', 'tenis' => 'Tenis'][$court->sport_type] ?? $court->sport_type }}</p><h3 class="mt-2 text-xl font-bold text-slate-900 dark:text-slate-100">{{ $court->name }}</h3><p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ $court->surface_type }} · {{ $court->is_covered ? 'Techada' : 'Al aire libre' }}</p></div>
+                        <p class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400"><svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>{{ collect([$court->address, $court->city])->filter()->implode(', ') ?: 'Ubicación sin configurar' }}</span></p>
+                        <p class="text-xs text-slate-500">{{ $court->minimum_deposit > 0 ? 'Abono mínimo: $'.number_format($court->minimum_deposit, 0, ',', '.') : 'Reserva online con pago total' }}</p>
+                        <div class="flex flex-wrap items-end justify-between gap-3 border-t border-slate-200 dark:border-slate-800 pt-4"><p class="text-2xl font-bold text-brand-content">&#36;{{ number_format($court->default_hourly_rate, 0, ',', '.') }}<span class="ml-1 text-xs font-normal text-slate-600 dark:text-slate-400">CLP / hora</span></p>@if(auth()->user()->role === 'club_admin')<a href="{{ route('courts.edit', $court) }}" class="text-xs font-semibold text-slate-700 dark:text-slate-300 underline hover:text-brand-content">Editar y cambiar tarifa</a>@endif</div>
+                    </div>
+                </article>
+            @empty
+                <div class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-10 text-center md:col-span-2 xl:col-span-3"><h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Tu primera cancha empieza aquí.</h3><p class="mx-auto mt-3 max-w-md text-sm text-slate-600 dark:text-slate-400">Agrega una cancha con su deporte, superficie y precio por hora. Después aparecerá en la agenda para reservar.</p>@if(auth()->user()->role === 'club_admin')<a class="mt-6 inline-block  bg-brand text-brand-on    font-bold text-brand-on inline-flex min-h-14 items-center justify-center rounded-xl px-7 py-4 text-base font-bold shadow-sm shadow-emerald-900/10 focus-visible:ring-2 focus-visible:ring-brand-ring focus-visible:ring-offset-2" href="{{ route('courts.create') }}">Crear mi primera cancha →</a>@endif</div>
+            @endforelse
+        </div>
+        {{ $courts->links() }}
+        <p class="text-xs text-slate-600 dark:text-slate-400">Desactivar una cancha impide nuevas reservas. Se conserva su historial y el precio de los turnos ya registrados.</p>
+    </div>
+</x-app-layout>

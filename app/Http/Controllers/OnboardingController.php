@@ -22,11 +22,11 @@ class OnboardingController extends Controller
         $courts = Court::get()->map(fn ($court) => [
             'key' => $court->setup_key, 'name' => $court->name, 'sport_type' => $court->sport_type,
             'surface_type' => $court->surface_type, 'is_covered' => (int) $court->is_covered,
-            'default_hourly_rate' => (int) $court->default_hourly_rate, 'saved' => true,
+            'minimum_deposit' => (int) $court->minimum_deposit, 'default_hourly_rate' => (int) $court->default_hourly_rate, 'saved' => true,
         ])->all();
 
         return view('onboarding.step1', [
-            'courts' => $courts ?: [['key' => (string) Str::uuid(), 'name' => '', 'sport_type' => 'padel', 'surface_type' => '', 'is_covered' => 0, 'default_hourly_rate' => 20000, 'saved' => false]],
+            'courts' => $courts ?: [['key' => (string) Str::uuid(), 'name' => '', 'sport_type' => 'padel', 'surface_type' => '', 'is_covered' => 0, 'default_hourly_rate' => 20000, 'minimum_deposit' => 0, 'saved' => false]],
             'subscription' => $service->subscription($request->user()),
         ]);
     }

@@ -12,7 +12,7 @@ class EnsureOnboardingIsComplete
     {
         $user = $request->user();
         if ($user && $user->role === 'club_admin' && ! $user->onboarding_completed
-            && ! $request->routeIs('onboarding.*', 'logout', 'public.bookings')) {
+            && ! $request->routeIs('onboarding.*', 'logout', 'public.bookings', 'club.logo', 'webpay.*')) {
             return redirect()->route('onboarding.step1');
         }
 

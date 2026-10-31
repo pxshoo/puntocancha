@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureClubAccess;
 use App\Http\Middleware\EnsureOnboardingIsComplete;
+use App\Http\Middleware\EnsurePlayer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->preventRequestForgery(except: ['pagos/webpay/retorno']);
+        $middleware->alias(['club.access' => EnsureClubAccess::class, 'player' => EnsurePlayer::class]);
+        $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->role === 'player' ? route('player.explore') : route('dashboard'));
         $middleware->web(append: [EnsureOnboardingIsComplete::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

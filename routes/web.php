@@ -2,11 +2,19 @@
 
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ClubBrandingController;
+use App\Http\Controllers\ClubLogoController;
+use App\Http\Controllers\ClubSettingsController;
+use App\Http\Controllers\CourtController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PlayerBookingController;
+use App\Http\Controllers\PlayerExplorarController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\WebpayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,14 +22,25 @@ Route::get('/', function () {
 });
 
 Route::get('/clubes/{club:slug}/reservas', PublicBookingController::class)->name('public.bookings');
-Route::middleware('auth')->prefix('onboarding')->name('onboarding.')->group(function () {
+Route::get('/media/clubes/{club:slug}/logo/{version}', ClubLogoController::class)->whereUuid('version')->name('club.logo');
+Route::get('/explorar', [PlayerExplorarController::class, 'index'])->name('player.explore');
+Route::get('/club/{slug}', [PlayerExplorarController::class, 'showClub'])->name('player.club');
+Route::post('/pagos/webpay', [WebpayController::class, 'store'])->middleware('throttle:10,1')->name('webpay.store');
+Route::match(['get', 'post'], '/pagos/webpay/retorno', [WebpayController::class, 'callback'])->middleware('throttle:60,1')->name('webpay.return');
+Route::get('/pagos/webpay/{payment}/comprobante', [WebpayController::class, 'receipt'])->middleware('signed')->name('webpay.receipt');
+Route::post('/pagos/webpay/{payment}/consultar', [WebpayController::class, 'refresh'])->middleware(['signed', 'throttle:10,1'])->name('webpay.refresh');
+Route::middleware(['auth', 'player'])->group(function () {
+    Route::get('/mis-reservas', [PlayerExplorarController::class, 'myBookings'])->name('player.bookings');
+    Route::post('/reservas/jugador', [PlayerBookingController::class, 'store'])->middleware('throttle:20,1')->name('player.book');
+});
+Route::middleware(['auth', 'club.access'])->prefix('onboarding')->name('onboarding.')->group(function () {
     Route::get('/paso-1', [OnboardingController::class, 'step1'])->name('step1');
     Route::post('/paso-1', [OnboardingController::class, 'saveStep1'])->name('save-step1');
     Route::get('/paso-2', [OnboardingController::class, 'step2'])->name('step2');
     Route::post('/completar', [OnboardingController::class, 'complete'])->name('complete');
 });
 
-Route::get('/dashboard', [AnalyticsController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [AnalyticsController::class, 'index'])->middleware(['auth', 'verified', 'club.access'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,7 +48,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'club.access'])->group(function () {
+    Route::get('/configuracion', [SettingsController::class, 'index'])->name('settings.index');
+    Route::get('/configuracion/marca', [ClubBrandingController::class, 'edit'])->name('settings.branding.edit');
+    Route::put('/configuracion/marca', [ClubBrandingController::class, 'update'])->name('settings.branding.update');
+    Route::get('/club/configuracion/datos', [ClubSettingsController::class, 'edit'])->name('club.settings.edit');
+    Route::put('/club/configuracion/datos', [ClubSettingsController::class, 'update'])->name('club.settings.update');
+    Route::get('/canchas', [CourtController::class, 'index'])->name('courts.index');
+    Route::get('/canchas/nueva', [CourtController::class, 'create'])->name('courts.create');
+    Route::post('/canchas', [CourtController::class, 'store'])->name('courts.store');
+    Route::get('/canchas/{court}/editar', [CourtController::class, 'edit'])->name('courts.edit');
+    Route::put('/canchas/{court}', [CourtController::class, 'update'])->name('courts.update');
     Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
     Route::post('/pos', [POSController::class, 'store'])->name('pos.store');
     Route::post('/pos/{sale}/cobrar', [POSController::class, 'settle'])->name('pos.settle');

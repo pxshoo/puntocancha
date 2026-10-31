@@ -17,6 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'phone' => ['sometimes', 'nullable', 'string', 'max:30', 'regex:/^\+?[0-9 ()-]{8,30}$/'],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',

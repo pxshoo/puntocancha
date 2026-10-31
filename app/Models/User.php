@@ -21,7 +21,7 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::creating(function (User $user) {
-            if (! $user->club_id) {
+            if ($user->role !== 'player' && ! $user->club_id) {
                 $user->club_id = Club::create(['name' => $user->club_name ?: 'Club de '.$user->name])->id;
             }
         });

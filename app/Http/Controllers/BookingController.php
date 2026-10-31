@@ -35,7 +35,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'court_id' => ['required', Rule::exists('courts', 'id')->where('club_id', $request->user()->club_id)],
+            'court_id' => ['required', Rule::exists('courts', 'id')->where('club_id', $request->user()->club_id)->where('is_active', true)],
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:50',
             'booking_date' => 'required|date',

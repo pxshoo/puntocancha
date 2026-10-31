@@ -34,4 +34,18 @@ Alpine.data('posCart', (products, previousItems = [], method = 'cash') => ({
     },
 }));
 
+Alpine.data('themeToggle', () => ({
+    dark: document.documentElement.classList.contains('dark'),
+    init() {
+        this.onThemeChange = () => { this.dark = document.documentElement.classList.contains('dark'); };
+        window.addEventListener('puntocancha-theme-changed', this.onThemeChange);
+    },
+    destroy() {
+        window.removeEventListener('puntocancha-theme-changed', this.onThemeChange);
+    },
+    toggle() {
+        window.PuntoCanchaTheme.set(this.dark ? 'light' : 'dark');
+    },
+}));
+
 Alpine.start();

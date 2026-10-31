@@ -21,6 +21,7 @@ class StoreOnboardingCourtsRequest extends FormRequest
             'courts.*.sport_type' => ['required', Rule::in(['padel', 'futbolito', 'tenis'])],
             'courts.*.surface_type' => ['required', 'string', 'max:100'],
             'courts.*.is_covered' => ['required', 'boolean'],
+            'courts.*.minimum_deposit' => ['sometimes', 'required', 'integer', 'min:0', 'max:99999999'],
             'courts.*.default_hourly_rate' => ['required', 'integer', 'min:1', 'max:99999999'],
         ];
     }

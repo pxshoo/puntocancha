@@ -6,16 +6,20 @@ use App\Models\Booking;
 use App\Models\Club;
 use App\Models\Court;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PublicBookingController extends Controller
 {
-    public function __invoke(Request $request, Club $club): View
+    public function __invoke(Request $request, Club $club): View|RedirectResponse
     {
         abort_unless($club->onboarding_completed_at && $club->opens_at && $club->closes_at, 404);
         $data = $request->validate(['date' => ['sometimes', 'date_format:Y-m-d', 'after_or_equal:today', 'before_or_equal:'.today()->addDays(90)->toDateString()]]);
         $date = $data['date'] ?? today()->toDateString();
+        if ($club->marketplace_enabled) {
+            return redirect()->route('player.club', ['slug' => $club->slug, 'date' => $date]);
+        }
         $opening = CarbonImmutable::parse($date.' '.$club->opens_at);
         $closing = CarbonImmutable::parse($date.' '.$club->closes_at);
         $courts = Court::withoutGlobalScopes()->where('club_id', $club->id)->where('is_active', true)->orderBy('name')->get();

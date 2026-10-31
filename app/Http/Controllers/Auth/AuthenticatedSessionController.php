@@ -17,7 +17,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(Request $request, PlanSelection $plans): View
     {
-        return view('auth.login', ['selection' => $plans->capture($request)]);
+        $playerAccess = ! $request->has('plan') && ($request->query('audience') === 'player' || $request->session()->get('auth_audience') === 'player');
+        $request->session()->put('auth_audience', $playerAccess ? 'player' : 'club');
+
+        return view('auth.login', ['selection' => $playerAccess ? null : $plans->capture($request), 'playerAccess' => $playerAccess]);
     }
 
     /**
@@ -28,6 +31,12 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        if ($request->user()->role === 'player') {
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('player.explore');
+        }
 
         if ($request->user()->role === 'club_admin' && ! $request->user()->onboarding_completed) {
             return redirect()->route('onboarding.step1');

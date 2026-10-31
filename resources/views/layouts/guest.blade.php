@@ -1,30 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
-            </div>
-        </div>
-    </body>
+<html lang="es" >
+<head>
+    <x-theme-init />
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#020617">
+    <title>Tu acceso · PuntoCancha</title>
+    <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased">
+    <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-12">
+        <div class="pointer-events-none absolute -top-52 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true"></div>
+        <div class="relative w-full max-w-md"><x-brand /><p class="mb-8 mt-5 text-sm text-slate-600 dark:text-slate-400">Tu club, en su mejor juego.</p><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-6 shadow-2xl sm:p-8">{{ $slot }}</div><a class="mt-6 inline-block text-xs text-slate-600 dark:text-slate-400 hover:text-brand-content" href="{{ route('login') }}">← Volver al acceso</a></div>
+    </div>
+    <x-theme-toggle />
+</body>
 </html>
