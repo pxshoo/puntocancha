@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\BookingPayment;
+use App\Models\SubscriptionPayment;
 use App\Services\BookingCheckoutService;
+use App\Services\SubscriptionCheckoutService;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -20,6 +22,15 @@ class ReconcileWebpay extends Command
             foreach ($payments as $payment) {
                 try {
                     $checkout->settle($payment, false);
+                } catch (Throwable) {
+                    $failures++;
+                }
+            }
+        });
+        SubscriptionPayment::where('status', 'initialized')->where('expires_at', '<=', now())->chunkById(100, function ($payments) use (&$failures): void {
+            foreach ($payments as $payment) {
+                try {
+                    app(SubscriptionCheckoutService::class)->settle($payment, false);
                 } catch (Throwable) {
                     $failures++;
                 }

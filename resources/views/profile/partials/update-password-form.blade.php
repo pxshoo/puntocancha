@@ -1,4 +1,4 @@
-<section>
+<section data-reveal>
     <header>
         <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
             {{ __('Cambiar contraseña') }}

@@ -28,6 +28,6 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('onboarding.step1'));
+        $response->assertRedirect(route('subscription.checkout'));
     }
 }

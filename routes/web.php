@@ -8,20 +8,33 @@ use App\Http\Controllers\ClubSettingsController;
 use App\Http\Controllers\ClubWeatherController;
 use App\Http\Controllers\CourtController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PlayerBookingController;
 use App\Http\Controllers\PlayerExplorarController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SubscriptionCheckoutController;
 use App\Http\Controllers\WebpayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
+Route::get('/contratar', [SubscriptionCheckoutController::class, 'select'])->name('subscription.select');
+Route::get('/legal/{document}', LegalController::class)->whereIn('document', ['terms', 'privacy'])->name('legal.show');
+Route::match(['get', 'post'], '/suscripcion/webpay/retorno', [SubscriptionCheckoutController::class, 'callback'])->middleware('throttle:60,1')->name('subscription.return');
+Route::middleware(['auth', 'club.access'])->group(function () {
+    Route::get('/suscripcion/contratar', [SubscriptionCheckoutController::class, 'checkout'])->name('subscription.checkout');
+    Route::post('/suscripcion/pagar', [SubscriptionCheckoutController::class, 'store'])->middleware('throttle:10,1')->name('subscription.store');
+    Route::get('/suscripcion/{payment}/resultado', [SubscriptionCheckoutController::class, 'result'])->name('subscription.result');
+    Route::post('/suscripcion/{payment}/consultar', [SubscriptionCheckoutController::class, 'refresh'])->middleware('throttle:10,1')->name('subscription.refresh');
+    Route::post('/suscripcion/{payment}/continuar', [SubscriptionCheckoutController::class, 'resume'])->middleware('throttle:10,1')->name('subscription.resume');
+});
 Route::get('/clubes/{club:slug}/reservas', PublicBookingController::class)->name('public.bookings');
 Route::get('/media/clubes/{club:slug}/logo/{version}', ClubLogoController::class)->whereUuid('version')->name('club.logo');
 Route::get('/explorar', [PlayerExplorarController::class, 'index'])->name('player.explore');
@@ -76,3 +89,5 @@ Route::middleware(['auth', 'club.access'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::get('/reportes/excel', ReportExportController::class)->middleware(['auth', 'verified', 'club.access', 'throttle:10,1'])->name('reports.excel');

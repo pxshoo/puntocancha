@@ -27,7 +27,19 @@ class Club extends Model
 
     protected function casts(): array
     {
-        return ['minimum_deposit' => 'integer', 'webpay_api_key' => 'encrypted', 'onboarding_completed_at' => 'datetime', 'slot_minutes' => 'integer', 'marketplace_enabled' => 'boolean'];
+        return ['latitude' => 'float', 'longitude' => 'float', 'minimum_deposit' => 'integer', 'webpay_api_key' => 'encrypted', 'onboarding_completed_at' => 'datetime', 'slot_minutes' => 'integer', 'marketplace_enabled' => 'boolean'];
+    }
+
+    public function mapUrl(?Court $court = null): string
+    {
+        $address = $court?->address ?: $this->address;
+        $city = $court?->city ?: $this->city;
+        $query = collect([$address, $city])->filter()->implode(', ');
+        if ($this->latitude !== null && $this->longitude !== null && $address === $this->address && $city === $this->city) {
+            $query = $this->latitude.','.$this->longitude;
+        }
+
+        return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($query);
     }
 
     public function logoUrl(): ?string

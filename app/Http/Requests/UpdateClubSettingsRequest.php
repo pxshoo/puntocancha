@@ -17,6 +17,8 @@ class UpdateClubSettingsRequest extends FormRequest
         return [
             'minimum_deposit' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:99999999'],
             'webpay_mode' => ['sometimes', Rule::in(['disabled', 'integration'])],
+            'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-85,85'],
+            'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
             'name' => ['required', 'string', 'max:255'],
             'city' => ['required', 'string', 'max:100'],
             'address' => ['required', 'string', 'max:255'],

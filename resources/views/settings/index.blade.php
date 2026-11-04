@@ -2,9 +2,12 @@
     <x-slot name="header"><h1 class="text-2xl font-bold text-slate-900 dark:text-white">Configuración</h1><p class="mt-2 text-sm text-slate-500">Todo lo que necesitas para preparar y personalizar tu club.</p></x-slot>
     <div class="mx-auto max-w-7xl space-y-8 px-5 py-8 sm:px-8">
         <x-operation-messages />
-        <section class="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-brand/20 bg-brand/10 p-6">
-            <div><p class="text-sm font-semibold text-brand-content">Tu espacio en PuntoCancha</p><h2 class="mt-1 text-2xl font-bold">{{ $club->name }}</h2><p class="mt-2 text-sm">{{ $courtCount }} canchas configuradas · {{ $club->marketplace_enabled ? 'Portal público habilitado' : 'Portal público pendiente de publicar' }}</p></div>
-            <a href="{{ route('club.settings.edit') }}" class="inline-flex min-h-14 items-center justify-center rounded-xl bg-brand px-6 font-bold text-brand-on hover:bg-brand-hover">Configurar mi club →</a>
+        <section data-reveal class="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-brand/20 bg-brand/10 p-6">
+            <div><x-brand :club="$club" :href="route('settings.branding.edit')" /><p class="mt-4 text-sm font-semibold text-brand-content">Tu espacio en PuntoCancha</p><h2 class="mt-1 text-2xl font-bold">{{ $club->name }}</h2><p class="mt-2 text-sm">{{ $courtCount }} canchas configuradas · {{ $club->marketplace_enabled ? 'Portal público habilitado' : 'Portal público pendiente de publicar' }}</p></div>
+            <div class="flex w-full flex-wrap gap-3 sm:w-auto">
+                <a href="{{ route('settings.branding.edit') }}" class="action-feedback inline-flex min-h-14 w-full items-center justify-center rounded-xl bg-brand px-6 font-bold text-brand-on shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-hover hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-ring sm:w-auto">Personalizar logo y colores</a>
+                <a href="{{ route('club.settings.edit') }}" class="action-feedback inline-flex min-h-14 w-full items-center justify-center rounded-xl border border-brand/30 px-6 font-semibold text-brand-content focus:outline-none focus:ring-2 focus:ring-brand-ring sm:w-auto">Datos del club</a>
+            </div>
         </section>
         <div class="grid gap-5 sm:grid-cols-2">
             @foreach([
@@ -19,8 +22,8 @@
                 </a>
             @endforeach
         </div>
-        <section id="mi-plan" class="scroll-mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-            <h2 class="text-xl font-bold">Mi plan</h2>
+        <section data-reveal id="mi-plan" class="surface-card scroll-mt-6 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="text-xl font-bold">Mi plan</h2><a class="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-brand-content underline" href="{{ url('/').'#planes' }}">Renovar o elegir otro plan</a>
             @if($subscription)
                 <p class="mt-4 text-lg font-semibold text-brand-content">{{ $subscription->plan?->name }}</p>
                 <dl class="mt-4 grid gap-5 text-sm sm:grid-cols-3">

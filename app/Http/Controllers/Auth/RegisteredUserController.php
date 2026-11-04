@@ -35,6 +35,6 @@ class RegisteredUserController extends Controller
         $plan = isset($data['plan_id']) ? Plan::findOrFail($data['plan_id']) : Plan::where('slug', $selection['key'])->firstOrFail();
         $request->session()->put('selected_plan', ['key' => $plan->slug, 'billing' => $selection['billing']]);
 
-        return redirect()->route('onboarding.step1');
+        return redirect()->route('subscription.checkout');
     }
 }

@@ -43,6 +43,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'onboarding_completed' => 'boolean',
+            'subscription_checkout_required' => 'boolean',
         ];
     }
 }

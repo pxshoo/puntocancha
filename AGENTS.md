@@ -128,4 +128,24 @@ Before relying on a package's API, confirm its installed version:
 - Rerun a test after each change to it.
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
+# UI/UX & Design Skills for PuntoCancha
+
+## Visual Guidelines & Aesthetics
+- **Theme:** Sports-tech modern aesthetic (similar to Easycancha / Strava).
+- **Color Palette:**
+  - Backgrounds: Dark slate (`slate-900`, `slate-950`) for headers/dashboards, clean whites and soft grays (`gray-50`) for content areas.
+  - Primary accents: Emerald / Mint (`emerald-500`, `emerald-600`) for availability, confirmations, and primary CTAs.
+  - Accents: Indigo / Violet for secondary actions, Rose (`rose-500`) for occupied slots or errors.
+- **Card Styling:** Soft shadows (`shadow-sm` / `shadow-md`), subtle borders (`border border-slate-100` or `border-slate-200`), rounded corners (`rounded-xl` or `rounded-2xl`).
+
+## Animation Rules
+- Always use smooth hover transitions on interactive elements (`transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg`).
+- Use entrance animations for modal popups and slot filters (`animate-in fade-in zoom-in-95 duration-150`).
+- Use badge pulse effects on "Turnos disponibles hoy" (`relative flex h-2 w-2` with `animate-ping`).
+- Ensure all transitions are accessible and do not cause layout shifts.
+
+## Component Standards
+- Buttons must include focus rings (`focus:ring-2 focus:ring-emerald-500 focus:outline-none`).
+- Forms must use `@tailwindcss/forms` styled inputs with rounded corners and clean placeholder text.
+- Use Lucide SVG icons inline for sports, clock/time, map pins, and calendar symbols.
 </laravel-boost-guidelines>

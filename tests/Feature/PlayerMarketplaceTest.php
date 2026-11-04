@@ -63,7 +63,7 @@ class PlayerMarketplaceTest extends TestCase
         [$club, $court] = $this->club(['marketplace_enabled' => false, 'city' => null, 'address' => null]);
         $court->update(['city' => 'Puerto Varas', 'address' => 'Camino Lago 456']);
         $this->get(route('player.explore'))->assertOk()->assertSee('Configurar y publicar mi club');
-        $this->get(route('club.settings.edit'))->assertOk()->assertSee('Puerto Varas')->assertSee('Camino Lago 456');
+        $this->get(route('club.settings.edit'))->assertOk()->assertSee('Puerto Varas')->assertSee('Camino Lago 456')->assertSee('Localizar en el mapa')->assertSee('Usar este punto');
         $this->assertFalse($club->fresh()->marketplace_enabled);
         $this->assertNull($club->fresh()->address);
         $this->post('/logout');

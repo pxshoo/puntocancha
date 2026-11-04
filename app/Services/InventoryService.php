@@ -15,6 +15,13 @@ class InventoryService
     {
         return DB::transaction(function () use ($data, $product) {
             Club::whereKey(auth()->user()->club_id)->lockForUpdate()->firstOrFail();
+            $categoryName = trim($data['new_category'] ?? $data['default_category'] ?? '');
+            if ($categoryName !== '') {
+                $category = ProductCategory::whereRaw('LOWER(name) = ?', [mb_strtolower($categoryName)])->first()
+                    ?? ProductCategory::create(['name' => $categoryName]);
+                $data['category_id'] = $category->id;
+            }
+            unset($data['new_category'], $data['default_category'], $data['category_choice']);
             if (! empty($data['category_id'])) {
                 ProductCategory::findOrFail($data['category_id']);
             }

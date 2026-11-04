@@ -1,4 +1,4 @@
-<section>
+<section data-reveal>
     <header>
         <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
             {{ __('Datos de tu cuenta') }}
@@ -33,7 +33,7 @@
                     <p class="text-sm mt-2 text-slate-900 dark:text-slate-100">
                         {{ __('Your email address is unverified.') }}
 
-                        <button form="send-verification" class="underline text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-lime-300">
+                        <button form="send-verification" class="underline text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-ring">
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>

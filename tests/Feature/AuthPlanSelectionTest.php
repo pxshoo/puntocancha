@@ -17,7 +17,7 @@ class AuthPlanSelectionTest extends TestCase
             ->assertSessionHas('selected_plan', ['key' => 'pro', 'billing' => 'annual']);
         $this->get('/register')->assertOk()->assertSee('Club Pro')->assertSee('624.000');
         $this->get('/login')->assertOk()->assertSee('Club Pro');
-        $this->get('/login?plan=basic')->assertOk()->assertSee('35.000')
+        $this->get('/contratar?plan=basic')->assertOk()->assertSee('35.000')
             ->assertSessionHas('selected_plan', ['key' => 'basic', 'billing' => 'monthly']);
     }
 
@@ -35,7 +35,7 @@ class AuthPlanSelectionTest extends TestCase
         $this->get('/login?plan=pro&billing=annual')->assertOk();
         $this->post('/login', ['email' => $user->email, 'password' => 'wrong'])->assertSessionHasErrors('email');
         $this->post('/login', ['email' => $user->email, 'password' => 'password'])
-            ->assertRedirect(route('dashboard', absolute: false))
+            ->assertRedirect(route('subscription.checkout'))
             ->assertSessionHas('selected_plan', ['key' => 'pro', 'billing' => 'annual']);
         $this->assertAuthenticatedAs($user);
     }
@@ -48,16 +48,16 @@ class AuthPlanSelectionTest extends TestCase
             'name' => 'Club Owner', 'email' => 'owner@example.com',
             'club_name' => 'Club de prueba', 'phone' => '+56912345678',
             'password' => 'password', 'password_confirmation' => 'password',
-        ])->assertRedirect(route('onboarding.step1'))
+        ])->assertRedirect(route('subscription.checkout'))
             ->assertSessionHas('selected_plan', ['key' => 'premium', 'billing' => 'annual']);
         $this->assertAuthenticated();
         $this->assertNotNull(auth()->user()->club_id);
     }
 
-    public function test_landing_links_all_plans_to_login_and_direct_access_has_no_plan(): void
+    public function test_landing_links_all_plans_to_account_choice_and_direct_access_has_no_plan(): void
     {
-        $this->get('/')->assertOk()->assertSee('/login?plan=basic', false)
-            ->assertSee('/login?plan=pro', false)->assertSee('/login?plan=premium', false);
+        $this->get('/')->assertOk()->assertSee('/contratar?plan=basic', false)
+            ->assertSee('/contratar?plan=pro', false)->assertSee('/contratar?plan=premium', false);
         $this->get('/login')->assertOk()->assertDontSee('Plan seleccionado');
         $this->get('/register')->assertOk()->assertDontSee('Plan seleccionado');
     }

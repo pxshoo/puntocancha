@@ -3,6 +3,7 @@
 <html lang="es" >
 <head>
     <x-theme-init />
+    <x-page-loading-head />
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><meta name="theme-color" content="#020617">
     <title>Paso {{ $step }} de 2 · PuntoCancha</title>
     <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
@@ -10,6 +11,7 @@
 <x-club-theme :club="auth()->user()?->club" />
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased selection:bg-emerald-600 dark:selection:bg-lime-300 dark:selection:text-slate-950 selection:text-white">
+    <x-page-loading />
     <header class="border-b border-slate-200 dark:border-slate-800"><div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8"><x-brand :club="auth()->user()?->club" /><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="text-xs text-slate-600 dark:text-slate-400 hover:text-brand-content">Salir y continuar después ↗</button></form></div></header>
     <main class="relative mx-auto grid max-w-7xl items-start gap-10 px-5 py-10 sm:px-8 lg:grid-cols-3 lg:gap-14 lg:py-16">
         <aside class="relative lg:sticky lg:top-12">
@@ -24,7 +26,7 @@
             <p class="mt-5 text-xs text-slate-600 dark:text-slate-400">Paso {{ $step }} de 2</p>
             <div class="mt-2 h-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800" role="progressbar" aria-label="Configuración del club" aria-valuenow="{{ $step }}" aria-valuemin="0" aria-valuemax="2"><div class="h-full rounded-full bg-brand text-brand-on {{ $step === 1 ? 'w-1/2' : 'w-full' }}"></div></div>
             @if ($subscription?->isCurrent())
-                <section class="mt-8 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-100 dark:from-emerald-950 to-white dark:to-slate-900 p-5"><p class="text-[9px] font-semibold uppercase tracking-widest text-brand-content">Tu plan seleccionado</p><h2 class="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">{{ $subscription->plan->name }}</h2><p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ $subscription->plan->court_limit === null ? 'Canchas ilimitadas' : 'Hasta '.$subscription->plan->court_limit.' canchas' }}</p><p class="mt-4 border-t border-brand/20 pt-3 text-[10px] text-emerald-800 dark:text-emerald-200">{{ $subscription->status === 'trialing' ? 'Prueba hasta el '.$subscription->ends_at?->format('d/m/Y H:i') : 'Suscripción activa' }}</p></section>
+                <section data-reveal class="mt-8 rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-100 dark:from-emerald-950 to-white dark:to-slate-900 p-5"><p class="text-[9px] font-semibold uppercase tracking-widest text-brand-content">Tu plan seleccionado</p><h2 class="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">{{ $subscription->plan->name }}</h2><p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ $subscription->plan->court_limit === null ? 'Canchas ilimitadas' : 'Hasta '.$subscription->plan->court_limit.' canchas' }}</p><p class="mt-4 border-t border-brand/20 pt-3 text-[10px] text-emerald-800 dark:text-emerald-200">{{ $subscription->status === 'trialing' ? 'Prueba hasta el '.$subscription->ends_at?->format('d/m/Y H:i') : 'Suscripción activa' }}</p></section>
             @else
                 <div role="alert" class="mt-8 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-800 dark:text-amber-200">Tu prueba o suscripción no está vigente. <a href="https://wa.me/56931403167" class="font-semibold underline">Contacta a soporte para activar o mejorar tu plan.</a></div>
             @endif

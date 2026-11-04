@@ -74,7 +74,7 @@ class ClubBrandingTest extends TestCase
         $user = User::factory()->create();
         $user->club->forceFill(['brand_palette' => 'violet'])->save();
         $this->actingAs($user)->get(route('settings.index'))->assertOk()->assertSee('Logo y colores')->assertSee('Mi plan');
-        $this->get(route('settings.branding.edit'))->assertOk()->assertSee('Guardar personalización')->assertSee('--brand-primary: 124 58 237', false);
+        $this->get(route('settings.branding.edit'))->assertOk()->assertSee('Guardar cambios')->assertSee('--brand-primary: 124 58 237', false);
         $this->get(route('player.explore'))->assertOk()->assertDontSee('data-club-theme', false);
     }
 

@@ -14,7 +14,7 @@
 @endphp
 <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 lg:flex" aria-label="Navegación del club">
     <div class="px-6 py-8"><x-brand :club="auth()->user()?->club" :href="route('dashboard')" /></div>
-    <div class="mx-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-4"><p class="text-[9px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">Tu recinto</p><p class="mt-2 truncate text-sm font-semibold text-slate-700 dark:text-slate-300">{{ auth()->user()->club?->name }}</p><p class="mt-2 text-[10px] text-brand-content">● Espacio de tu club</p></div>
+    <div class="surface-card mx-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-4"><p class="text-[9px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">Tu recinto</p><p class="mt-2 truncate text-sm font-semibold text-slate-700 dark:text-slate-300">{{ auth()->user()->club?->name }}</p><p class="mt-2 text-[10px] text-brand-content">● Espacio de tu club</p></div>
     <nav class="mt-8 space-y-2 px-4">
         <p class="px-3 pb-2 text-[9px] uppercase tracking-widest text-slate-500 dark:text-slate-500">Administración</p>
         @foreach ($menuItems as $item)

@@ -22,9 +22,13 @@ class OnboardingTest extends TestCase
             'name' => 'Administradora', 'club_name' => 'Club del Sur', 'phone' => '+56912345678',
             'email' => 'admin@example.com', 'password' => 'password', 'password_confirmation' => 'password',
             'role' => 'staff', 'onboarding_completed' => true,
-        ])->assertRedirect(route('onboarding.step1'))->assertSessionHasNoErrors();
+        ])->assertRedirect(route('subscription.checkout'))->assertSessionHasNoErrors();
 
-        return auth()->user();
+        $user = auth()->user();
+        $user->forceFill(['subscription_checkout_required' => false])->save();
+        Subscription::query()->update(['status' => 'active', 'ends_at' => now()->addMonthNoOverflow()]);
+
+        return $user;
     }
 
     private function courts(int $count): array
@@ -40,7 +44,7 @@ class OnboardingTest extends TestCase
         return ['opens_at' => '08:00', 'closes_at' => '23:00', 'slot_minutes' => 90, 'seed_products' => $seed];
     }
 
-    public function test_registration_creates_admin_and_seven_day_trial_with_numeric_plan(): void
+    public function test_paid_admin_can_start_setup_with_numeric_plan(): void
     {
         $this->travelTo(now()->setDate(2026, 10, 30)->setTime(12, 0));
         $user = $this->registerClub(2);
@@ -49,9 +53,9 @@ class OnboardingTest extends TestCase
         $this->assertSame('Club del Sur', $user->club->name);
         $subscription = Subscription::firstOrFail();
         $this->assertEquals(2, $subscription->plan_id);
-        $this->assertSame('trialing', $subscription->status);
+        $this->assertSame('active', $subscription->status);
         $this->assertTrue($subscription->starts_at->equalTo(now()));
-        $this->assertTrue($subscription->ends_at->equalTo(now()->addDays(7)));
+        $this->assertTrue($subscription->ends_at->equalTo(now()->addMonthNoOverflow()));
         $this->assertEquals(6, $subscription->plan->court_limit);
         $this->assertDatabaseCount('users', 1);
         $this->get('/onboarding/paso-1')->assertOk()->assertSee('Paso 1 de 2');

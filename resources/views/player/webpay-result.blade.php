@@ -1,5 +1,5 @@
 <x-player-layout :club="$payment->club">
-    <section class="mx-auto max-w-2xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+    <section data-reveal class="surface-card mx-auto max-w-2xl space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
         <p class="text-sm font-semibold text-brand-content">{{ $payment->club->name }}</p>
         <h1 class="text-2xl font-bold">{{ $payment->status === 'paid' ? 'Pago aprobado · Reserva confirmada' : ($payment->status === 'failed' ? 'El pago no fue aprobado' : 'Pago pendiente de verificación') }}</h1>
         @if($payment->mode === 'integration')<p class="rounded-xl bg-amber-100 p-3 text-sm text-amber-950">Prueba de Webpay. No corresponde a un pago real.</p>@endif

@@ -8,18 +8,14 @@
     <div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
         <x-operation-messages />
         <div class="rounded-xl bg-amber-400/5 border border-amber-400/20 p-4">{{ $lowStock }} producto(s) activo(s) en stock mínimo o agotados.</div>
-        <div class="grid lg:grid-cols-2 gap-4">
-            <form method="GET" action="{{ route('inventory.index') }}" class="flex flex-wrap gap-3">
-                <label class="grow"><span class="sr-only">Buscar producto o código</span><input class="rounded-lg border-slate-200 dark:border-slate-800 w-full bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-emerald-500 dark:focus:border-lime-300 focus:ring-emerald-500 dark:focus:ring-lime-300" name="q" value="{{ request('q') }}" placeholder="Nombre o código de barras" maxlength="100"></label>
+        <div class="grid gap-4">
+            <form method="GET" action="{{ route('inventory.index') }}" class="responsive-filter flex flex-wrap gap-3">
+                <label class="grow"><span class="sr-only">Buscar producto o código</span><input class="rounded-lg border-slate-200 dark:border-slate-800 w-full bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-brand focus:ring-brand-ring" name="q" value="{{ request('q') }}" placeholder="Nombre o código de barras" maxlength="100"></label>
                 <x-primary-button>Buscar</x-primary-button>
             </form>
-            <form method="POST" action="{{ route('inventory.categories.store') }}" class="flex flex-wrap gap-3">
-                @csrf
-                <label class="grow"><span class="sr-only">Nombre de la nueva categoría</span><input class="rounded-lg border-slate-200 dark:border-slate-800 w-full bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-emerald-500 dark:focus:border-lime-300 focus:ring-emerald-500 dark:focus:ring-lime-300" name="name" maxlength="100" placeholder="Nueva categoría" required></label>
-                <x-primary-button>Crear categoría</x-primary-button>
-            </form>
+
         </div>
-        <div class="overflow-x-auto bg-white dark:bg-slate-900 rounded-xl shadow-sm">
+        <div class="surface-card overflow-x-auto bg-white dark:bg-slate-900 rounded-xl shadow-sm">
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-100/40 dark:bg-slate-800/40 text-left"><tr><th class="p-4">Producto</th><th class="p-4">Costo / Precio</th><th class="p-4">Stock</th><th class="p-4">Acciones</th></tr></thead>
                 <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
@@ -32,20 +28,20 @@
                                 <a class="text-brand-content underline" href="{{ route('inventory.edit', $product) }}">Editar</a>
                                 <form method="POST" action="{{ route('inventory.adjust', $product) }}" class="flex flex-wrap gap-2">
                                     @csrf
-                                    <label><span class="sr-only">Cantidad de ajuste para {{ $product->name }}</span><input class="rounded border-slate-200 dark:border-slate-800 w-24 text-sm bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-emerald-500 dark:focus:border-lime-300 focus:ring-emerald-500 dark:focus:ring-lime-300" type="number" name="quantity" min="-100000000" max="100000000" placeholder="+ / −" required></label>
-                                    <label><span class="sr-only">Motivo del ajuste</span><input class="rounded border-slate-200 dark:border-slate-800 text-sm bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-emerald-500 dark:focus:border-lime-300 focus:ring-emerald-500 dark:focus:ring-lime-300" name="reason" maxlength="255" placeholder="Motivo: compra, merma..." required></label>
-                                    <x-secondary-button type="submit">Ajustar</x-secondary-button>
+                                    <label><span class="sr-only">Cantidad de ajuste para {{ $product->name }}</span><input class="rounded border-slate-200 dark:border-slate-800 w-24 text-sm bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-brand focus:ring-brand-ring" type="number" name="quantity" min="-100000000" max="100000000" placeholder="+ / −" required></label>
+                                    <label><span class="sr-only">Motivo del ajuste</span><select name="reason" class="rounded-lg border-slate-200 bg-slate-50 text-sm text-slate-900 focus:ring-brand-ring dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"><option value="Reposición de mercadería">Reposición</option><option value="Compra de mercadería">Compra</option><option value="Merma o pérdida">Merma o pérdida</option><option value="Corrección de inventario">Corrección de inventario</option></select></label>
+                                    <x-secondary-button type="submit">Guardar cambios</x-secondary-button>
                                 </form>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="p-8 text-center text-slate-600 dark:text-slate-400">No hay productos. Crea una categoría y tu primer producto para comenzar.</td></tr>
+                        <tr><td colspan="4" class="p-8 text-center text-slate-600 dark:text-slate-400">No hay productos. Agrega tu primer producto para comenzar.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         {{ $products->links() }}
-        <section class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
+        <section data-reveal class="surface-card bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6">
             <h3 class="text-lg font-semibold mb-4">Últimos movimientos</h3>
             <div class="overflow-x-auto"><table class="min-w-full text-sm text-left">
                 <thead><tr><th class="py-2">Fecha</th><th>Producto</th><th>Cambio</th><th>Stock final</th><th>Motivo</th></tr></thead>

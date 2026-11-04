@@ -1,5 +1,8 @@
 import Alpine from 'alpinejs';
 import clubWeather from './club-weather';
+import timePicker from './time-picker';
+import clubLocation from './club-location';
+import { initInterfaceMotion } from './interface-motion';
 
 window.Alpine = Alpine;
 
@@ -50,5 +53,13 @@ Alpine.data('themeToggle', () => ({
 }));
 
 Alpine.data('clubWeather', clubWeather);
+Alpine.data('timePicker', timePicker);
+Alpine.data('clubLocation', clubLocation);
 
 Alpine.start();
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInterfaceMotion, { once: true });
+} else {
+    initInterfaceMotion();
+}

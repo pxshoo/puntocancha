@@ -1,5 +1,5 @@
 <x-player-layout :club="$payment->club">
-    <section class="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section data-reveal class="surface-card mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <h1 class="text-2xl font-bold">Continuar a Webpay</h1>
         @if($payment->mode === 'integration')<p class="mt-4 rounded-xl bg-amber-100 p-3 text-sm text-amber-950">Modo de pruebas: no se realizará un cobro real.</p>@endif
         <p class="mt-5">Monto a pagar: <strong>&#36;{{ number_format($payment->amount, 0, ',', '.') }} CLP</strong></p>

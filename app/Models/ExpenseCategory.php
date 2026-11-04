@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExpenseCategory extends Model
 {
-    //
+    use BelongsToClub;
+
+    protected $fillable = ['name'];
 }

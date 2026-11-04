@@ -15,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->preventRequestForgery(except: ['pagos/webpay/retorno']);
+        $middleware->trustProxies(at: ['127.0.0.1', '::1']);
+        $middleware->preventRequestForgery(except: ['pagos/webpay/retorno', 'suscripcion/webpay/retorno']);
         $middleware->alias(['club.access' => EnsureClubAccess::class, 'player' => EnsurePlayer::class]);
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->role === 'player' ? route('player.explore') : route('dashboard'));
         $middleware->web(append: [EnsureOnboardingIsComplete::class]);

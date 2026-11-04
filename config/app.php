@@ -2,6 +2,8 @@
 
 return [
 
+    'share_preview' => env('APP_SHARE_PREVIEW', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
