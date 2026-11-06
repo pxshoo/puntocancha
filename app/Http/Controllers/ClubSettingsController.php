@@ -34,6 +34,7 @@ class ClubSettingsController extends Controller
     public function update(UpdateClubSettingsRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $data['hourly_rates'] = array_values($data['hourly_rates'] ?? []);
         DB::transaction(function () use ($data, $request) {
             $club = Club::whereKey($request->user()->club_id)->lockForUpdate()->firstOrFail();
             $minutes = CarbonImmutable::createFromFormat('!H:i', $data['opens_at'])->diffInMinutes(CarbonImmutable::createFromFormat('!H:i', $data['closes_at']));

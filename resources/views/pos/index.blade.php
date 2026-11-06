@@ -38,6 +38,7 @@
                 </template>
                 <div class="flex justify-between text-xl font-bold"><span>Total</span><span x-text="money(total)"></span></div>
                 <p class="text-xs text-slate-600 dark:text-slate-400">El precio y el stock se verifican al registrar la venta.</p>
+                <label class="grid gap-1 text-sm">Correo para enviar confirmaci&oacute;n (opcional)<input type="email" name="customer_email" maxlength="255" value="{{ old('customer_email') }}" placeholder="cliente@correo.cl" class="rounded-xl border-slate-200 bg-slate-50 text-slate-900 focus:ring-brand-ring dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"></label>
                 <label class="grid gap-1">Cobro <select class="rounded border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:border-brand focus:ring-brand-ring" name="payment_method" x-model="method">
                     <option value="cash">Efectivo</option><option value="pos">Tarjeta POS</option><option value="transfer">Transferencia</option><option value="booking">Cargar a reserva</option>
                 </select></label>

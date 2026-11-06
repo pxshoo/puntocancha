@@ -27,7 +27,7 @@ class Club extends Model
 
     protected function casts(): array
     {
-        return ['latitude' => 'float', 'longitude' => 'float', 'minimum_deposit' => 'integer', 'webpay_api_key' => 'encrypted', 'onboarding_completed_at' => 'datetime', 'slot_minutes' => 'integer', 'marketplace_enabled' => 'boolean'];
+        return ['hourly_rates' => 'array', 'latitude' => 'float', 'longitude' => 'float', 'minimum_deposit' => 'integer', 'webpay_api_key' => 'encrypted', 'onboarding_completed_at' => 'datetime', 'slot_minutes' => 'integer', 'marketplace_enabled' => 'boolean'];
     }
 
     public function mapUrl(?Court $court = null): string

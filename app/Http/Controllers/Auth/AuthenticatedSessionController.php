@@ -35,6 +35,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        if ($request->user()->is_superadmin) {
+            return redirect()->route('superadmin.index');
+        }
         if ($request->user()->role === 'player') {
             $request->session()->forget('url.intended');
 

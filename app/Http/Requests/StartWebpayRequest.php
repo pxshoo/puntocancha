@@ -11,6 +11,13 @@ class StartWebpayRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->user()?->role === 'player') {
+            $this->merge(['customer_email' => $this->user()->email]);
+        }
+    }
+
     public function rules(): array
     {
         return [

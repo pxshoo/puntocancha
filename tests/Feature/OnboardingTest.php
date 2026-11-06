@@ -58,7 +58,34 @@ class OnboardingTest extends TestCase
         $this->assertTrue($subscription->ends_at->equalTo(now()->addMonthNoOverflow()));
         $this->assertEquals(6, $subscription->plan->court_limit);
         $this->assertDatabaseCount('users', 1);
-        $this->get('/onboarding/paso-1')->assertOk()->assertSee('Paso 1 de 2');
+        $this->get('/onboarding/paso-1')->assertOk()->assertSee('Nombre del club');
+    }
+
+    public function test_manual_access_grant_allows_setup_while_payment_is_pending(): void
+    {
+        $user = $this->registerClub();
+        Subscription::firstOrFail()->update(['status' => 'pending']);
+        $user->club->forceFill(['access_override' => 'allow'])->save();
+        $this->post('/onboarding/paso-1', ['courts' => $this->courts(1)])->assertSessionHasNoErrors();
+        $this->post('/onboarding/completar', $this->hours())->assertRedirect(route('bookings.index'))->assertSessionHasNoErrors();
+        $this->assertTrue($user->fresh()->onboarding_completed);
+        $this->assertSame('pending', Subscription::firstOrFail()->status);
+    }
+
+    public function test_setup_requires_location_to_publish_and_makes_club_discoverable(): void
+    {
+        $user = $this->registerClub();
+        $this->post('/onboarding/paso-1', ['courts' => $this->courts(1)])->assertSessionHasNoErrors();
+        $this->post('/onboarding/completar', array_merge($this->hours(), ['marketplace_enabled' => 1]))
+            ->assertSessionHasErrors(['city', 'address', 'phone']);
+        $this->assertFalse($user->fresh()->onboarding_completed);
+        $this->post('/onboarding/completar', array_merge($this->hours(), [
+            'city' => 'Puerto Montt', 'address' => 'Calle Sur 123', 'phone' => '+56912345678', 'marketplace_enabled' => 1,
+        ]))->assertRedirect(route('bookings.index'))->assertSessionHasNoErrors();
+        $this->assertTrue($user->club->fresh()->marketplace_enabled);
+        $this->post('/logout');
+        $this->get(route('player.explore'))->assertOk()->assertSee('Club del Sur')->assertSee('Puerto Montt');
+        $this->get(route('player.club', $user->club->slug))->assertOk()->assertSee('Calle Sur 123');
     }
 
     public function test_incomplete_admin_is_redirected_and_can_log_out_and_resume(): void
@@ -78,9 +105,11 @@ class OnboardingTest extends TestCase
     {
         $this->registerClub();
         $rows = $this->courts(2);
-        $this->post('/onboarding/paso-1', ['courts' => $rows])->assertRedirect(route('onboarding.step2'));
+        $this->post('/onboarding/paso-1', ['club_name' => 'Nuevo Club', 'courts' => $rows])->assertRedirect(route('onboarding.step2'));
         $this->post('/onboarding/paso-1', ['courts' => $rows])->assertSessionHasNoErrors();
         $this->assertDatabaseCount('courts', 2);
+        $this->assertSame('Nuevo Club', auth()->user()->club->fresh()->name);
+        $this->assertSame('Nuevo Club', auth()->user()->fresh()->club_name);
         $extra = $this->courts(1);
         $extra[0]['name'] = 'Cancha extra';
         $this->post('/onboarding/paso-1', ['courts' => $extra])->assertSessionHasErrors('courts');
@@ -121,7 +150,7 @@ class OnboardingTest extends TestCase
     {
         $user = $this->registerClub();
         $this->post('/onboarding/paso-1', ['courts' => $this->courts(1)])->assertSessionHasNoErrors();
-        $this->get('/onboarding/paso-2')->assertOk()->assertSee('Paso 2 de 2');
+        $this->get('/onboarding/paso-2')->assertOk()->assertSee('Revisión final');
         $this->post('/onboarding/completar', $this->hours(true))
             ->assertRedirect(route('bookings.index'))->assertSessionHas('public_booking_url');
         $this->assertTrue($user->fresh()->onboarding_completed);
@@ -184,9 +213,8 @@ class OnboardingTest extends TestCase
         $this->actingAs($other);
         Court::factory()->create(['name' => 'Cancha de otro club']);
         $this->post('/logout');
-        $this->get('/clubes/'.$slug.'/reservas?date='.$date)->assertOk()->assertSee('Disponible')
-            ->assertSee('No disponible')->assertSee('08:00')->assertSee('09:30')
-            ->assertDontSee('Nombre confidencial')->assertDontSee('999888777')->assertDontSee('Cancha de otro club');
+        $this->get('/clubes/'.$slug.'/reservas?date='.$date)
+            ->assertRedirect(route('player.club', ['slug' => $slug, 'date' => $date]));
     }
 
     public function test_guest_cannot_setup_a_club_and_invalid_plan_does_not_create_account(): void

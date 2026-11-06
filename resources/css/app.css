@@ -110,3 +110,126 @@
         :where(main th, main td) { padding-inline: .5rem; }
     }
 }
+
+@layer components {
+    :where(main article.rounded-2xl, main section.rounded-2xl, main form.rounded-xl) {
+        transition: box-shadow 200ms ease-in-out, border-color 200ms ease-in-out;
+    }
+    :where(main h1, main h2) { text-wrap: balance; }
+    :where(main input, main select, main textarea):disabled {
+        cursor: not-allowed;
+        opacity: .6;
+    }
+    :where(main input, main textarea)[readonly] { cursor: default; }
+    :where(main input, main select, main textarea)[aria-invalid=true] {
+        border-color: rgb(244 63 94);
+    }
+    :where(main details > summary) { list-style-position: inside; }
+    :where(main table) { width: 100%; border-collapse: collapse; }
+    :where(main table th) { font-weight: 600; }
+    :where(main table td) { vertical-align: middle; }
+    :where(main table tbody tr) { transition: background-color 200ms ease-in-out; }
+    @media (hover: hover) {
+        :where(main article.rounded-2xl, main section.rounded-2xl, main form.rounded-xl):hover {
+            box-shadow: 0 8px 24px rgb(15 23 42 / .06);
+        }
+        .dark :where(main article.rounded-2xl, main section.rounded-2xl, main form.rounded-xl):hover {
+            box-shadow: 0 8px 24px rgb(0 0 0 / .18);
+        }
+        :where(main table tbody tr):hover { background-color: rgb(var(--brand-primary) / .035); }
+        :where(main a.rounded-xl, main button.rounded-xl):not(:disabled):not([aria-disabled=true]):hover {
+            box-shadow: 0 4px 14px rgb(15 23 42 / .08);
+        }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        section[role=dialog] { animation: pc-content-in 150ms ease-out; }
+        :where(main details[open] > form, main details[open] > dl) { animation: pc-content-in 150ms ease-out; }
+    }
+    @media (max-width: 639px) {
+        :where(main .grid > form, main .grid > article, main .grid > section) { max-width: 100%; }
+        :where(main label) { overflow-wrap: anywhere; }
+        :where(main textarea) { min-height: 7rem; }
+        :where(main form button[type=submit]) { max-width: 100%; white-space: normal; }
+    }
+}
+
+/* Shared visual language, derived from the public landing and tenant brand tokens. */
+.pc-interface {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    background-image: radial-gradient(ellipse at 100% 0%, rgb(var(--brand-primary) / .075), transparent 42rem);
+    background-repeat: no-repeat;
+}
+.pc-interface .pc-page-heading {
+    background: linear-gradient(115deg, rgb(var(--brand-primary) / .10), rgb(var(--brand-primary) / .025) 65%, transparent);
+    border-bottom-color: rgb(var(--brand-primary) / .16);
+}
+.pc-interface .pc-page-heading h2 {
+    font-size: clamp(1.5rem, 2.2vw, 2.15rem);
+    font-weight: 800;
+    letter-spacing: -.035em;
+    line-height: 1.2;
+}
+.pc-interface :where(main h1, main h2, main h3) { letter-spacing: -.025em; }
+.pc-interface :where(main p, main label) { line-height: 1.65; }
+.pc-interface :where(main section, main article, main form, main div).bg-white:where(.rounded-xl, .rounded-2xl, .rounded-3xl),
+.pc-interface .surface-card {
+    border-color: rgb(226 232 240 / .95);
+    box-shadow: 0 2px 5px rgb(15 23 42 / .025), 0 12px 32px rgb(15 23 42 / .045);
+}
+.dark .pc-interface :where(main section, main article, main form, main div).bg-white:where(.rounded-xl, .rounded-2xl, .rounded-3xl),
+.dark .pc-interface .surface-card {
+    border-color: rgb(51 65 85 / .75);
+    box-shadow: 0 2px 6px rgb(0 0 0 / .12), 0 16px 36px rgb(0 0 0 / .12);
+}
+.pc-interface :where(a, button).bg-brand {
+    background-image: linear-gradient(135deg, rgb(255 255 255 / .09), transparent 65%);
+    box-shadow: 0 5px 14px rgb(var(--brand-primary) / .19);
+    font-weight: 700;
+}
+.pc-interface :where(main input, main select, main textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]) {
+    min-height: 3rem;
+    border-color: rgb(203 213 225);
+    box-shadow: inset 0 1px 2px rgb(15 23 42 / .025);
+}
+.dark .pc-interface :where(main input, main select, main textarea):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]):not([type=color]) {
+    border-color: rgb(71 85 105);
+}
+.pc-interface :where(main input, main select, main textarea):focus {
+    border-color: rgb(var(--brand-ring));
+    box-shadow: 0 0 0 3px rgb(var(--brand-ring) / .15);
+}
+.pc-interface :where(main input, main select, main textarea)[aria-invalid=true] { border-color: rgb(244 63 94); }
+.pc-interface :where(main table thead) {
+    background-color: rgb(var(--brand-primary) / .065);
+    color: rgb(var(--brand-content));
+}
+.pc-interface :where(main table th) {
+    padding-block: 1rem;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+.pc-interface :where(main table td) { padding-block: 1rem; }
+.pc-interface :where(nav a[aria-current=page]) {
+    border-radius: .85rem;
+    box-shadow: inset 3px 0 0 rgb(var(--brand-primary));
+}
+.pc-interface :where(aside[aria-label]) {
+    box-shadow: 6px 0 32px rgb(15 23 42 / .025);
+}
+.pc-interface .pc-platform-heading {
+    border-top: 3px solid rgb(var(--brand-primary));
+}
+.pc-interface :where(main [role=alert]) {
+    border-radius: .85rem;
+    padding: 1rem 1.25rem;
+    background-color: rgb(244 63 94 / .07);
+    border: 1px solid rgb(244 63 94 / .22);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .pc-interface .surface-card:hover { box-shadow: 0 10px 32px rgb(var(--brand-primary) / .085); }
+}
+@media (max-width: 639px) {
+    .pc-interface .pc-page-heading { padding-block: 1.5rem; }
+    .pc-interface :where(main .grid > *) { min-width: 0; }
+}

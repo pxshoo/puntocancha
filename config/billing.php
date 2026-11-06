@@ -1,15 +1,19 @@
 <?php
 
 return [
+    'test_prices' => env('BILLING_TEST_PRICES', false),
+    'fixed_links' => ['basic' => env('BILLING_LINK_BASIC'), 'pro' => env('BILLING_LINK_PRO'), 'premium' => env('BILLING_LINK_PREMIUM')],
+    'payment_link' => env('BILLING_PAYMENT_LINK'),
+    'link_test_enabled' => env('BILLING_LINK_TEST_ENABLED', false),
     'mode' => env('BILLING_WEBPAY_MODE', env('APP_ENV') === 'production' ? 'disabled' : 'integration'),
     'commerce_code' => env('BILLING_WEBPAY_COMMERCE_CODE'),
     'api_key' => env('BILLING_WEBPAY_API_KEY'),
     'legal_approved' => env('BILLING_LEGAL_APPROVED', false),
     'provider' => ['name' => 'pxshoo', 'rut' => '21.431.110-0', 'email' => 'franciscogonzalezandrades@gmail.com'],
-    'version' => '2026-11-04',
+    'version' => '2026-11-05',
     'terms' => [
         'Servicio' => 'PuntoCancha es una plataforma de gestión de clubes deportivos ofrecida por pxshoo, RUT 21.431.110-0. El acceso contratado corresponde al club y a las funciones habilitadas en su plan.',
-        'Planes y pago' => 'Antes de pagar se informa el plan, período y monto total en pesos chilenos. El pago mensual habilita un mes; el anual habilita un año con el descuento indicado. La creación de la cuenta no genera un cobro. La activación ocurre después de una aprobación verificada por Webpay.',
+        'Planes y pago' => 'Antes de pagar se informa el plan, período y monto total en pesos chilenos. El pago mensual habilita un mes; el anual habilita un año con el descuento indicado. La creación de la cuenta no genera un cobro. La activación requiere verificar el pago. En pagos por enlace Webpay.cl la verificación y activación son manuales; abrir el enlace no acredita un pago. La opción independiente de prueba de cobro no activa planes. Los planes con precios temporales de prueba habilitan el período contratado después de verificar el pago.',
         'Renovación' => 'Este flujo no guarda tarjetas ni realiza cargos recurrentes automáticos. La renovación requiere un nuevo pago autorizado. Una renovación del mismo plan vigente agrega el período pagado a su vencimiento; un cambio de plan comienza al aprobarse el pago.',
         'Uso de la cuenta' => 'El administrador debe proporcionar información correcta, proteger sus credenciales y autorizar solo al personal que corresponda. No se permite acceder a datos de otros clubes ni utilizar el servicio para actividades ilícitas.',
         'Reservas y cobros del club' => 'El pago de acceso a PuntoCancha es independiente de los pagos que los jugadores realizan al club. El club administra sus canchas, tarifas, condiciones de reserva y su propia relación con los jugadores.',

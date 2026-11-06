@@ -27,7 +27,7 @@ class PlayerExplorarController extends Controller
             $matrix = $service->availability($club, $club->courts, $bookings, $date);
 
             return ['club' => $club, 'available' => $matrix->sum(fn ($row) => collect($row['slots'])->where('available', true)->count()),
-                'price' => $club->courts->min('default_hourly_rate'), 'sports' => $club->courts->pluck('sport_type')->unique(),
+                'price' => $matrix->flatMap(fn ($row) => $row['slots'])->min('price') * 60 / $club->slot_minutes, 'sports' => $club->courts->pluck('sport_type')->unique(),
                 'covered' => $club->courts->contains(fn ($court) => (bool) $court->is_covered)];
         });
 

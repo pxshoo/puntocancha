@@ -1,3 +1,4 @@
+import accessStatus from './access-status';
 import Alpine from 'alpinejs';
 import clubWeather from './club-weather';
 import timePicker from './time-picker';
@@ -56,6 +57,7 @@ Alpine.data('clubWeather', clubWeather);
 Alpine.data('timePicker', timePicker);
 Alpine.data('clubLocation', clubLocation);
 
+Alpine.data('accessStatus', accessStatus);
 Alpine.start();
 
 if (document.readyState === 'loading') {

@@ -11,9 +11,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 <x-club-theme :club="auth()->user()?->club" />
 </head>
-<body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased selection:bg-emerald-600 dark:selection:bg-lime-300 dark:selection:text-slate-950 selection:text-white">
+<body class="pc-interface min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased selection:bg-emerald-600 dark:selection:bg-lime-300 dark:selection:text-slate-950 selection:text-white">
     <x-page-loading />
-    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-emerald-600 dark:focus:bg-lime-300 dark:focus:text-slate-950 focus:p-3 focus:text-slate-950">Saltar al contenido</a>
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-emerald-600 dark:focus:bg-lime-300 dark:focus:text-slate-950 focus:p-3 focus:text-white">Saltar al contenido</a>
     @include('layouts.navigation')
     <div class="min-h-screen min-w-0 lg:pl-64">
         <div class="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/30 dark:bg-slate-900/30 px-5 py-4 sm:px-8">
@@ -23,9 +23,9 @@
             </div>
         </div>
         @isset($header)
-            <header class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 px-4 py-6 sm:px-8 sm:py-8">
+            <header class="pc-page-heading relative overflow-hidden border-b border-slate-200 dark:border-slate-800 px-4 py-6 sm:px-8 sm:py-8">
                 <div class="pointer-events-none absolute -right-20 -top-40 h-80 w-80 rounded-full bg-emerald-500/5 blur-3xl" aria-hidden="true"></div>
-                <div class="relative mx-auto max-w-7xl"><p class="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-content">Centro de operaciones</p>{{ $header }}</div>
+                <div class="relative {{ request()->routeIs('dashboard') ? 'w-full' : 'mx-auto max-w-7xl' }}"><p class="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-content">Centro de operaciones</p>{{ $header }}</div>
             </header>
         @endisset
         <main id="contenido" class="relative min-w-0 pb-20 sm:pb-8">{{ $slot }}</main>

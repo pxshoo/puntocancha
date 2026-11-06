@@ -14,6 +14,7 @@ class StartSubscriptionPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'link_test' => ['sometimes', 'boolean'],
             'accept_terms' => ['required', 'accepted'],
             'accept_privacy' => ['required', 'accepted'],
             'policy_version' => ['required', 'in:'.config('billing.version')],

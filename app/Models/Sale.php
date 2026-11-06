@@ -10,7 +10,7 @@ class Sale extends Model
 {
     use BelongsToClub;
 
-    protected $fillable = ['booking_id', 'user_id', 'request_key', 'total_amount', 'cost_amount', 'status', 'payment_method', 'paid_at'];
+    protected $fillable = ['customer_email', 'booking_id', 'user_id', 'request_key', 'total_amount', 'cost_amount', 'status', 'payment_method', 'paid_at'];
 
     protected function casts(): array
     {

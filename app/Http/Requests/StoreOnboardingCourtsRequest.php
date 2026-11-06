@@ -15,6 +15,7 @@ class StoreOnboardingCourtsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'club_name' => ['sometimes', 'required', 'string', 'max:255'],
             'courts' => ['required', 'array', 'min:1'],
             'courts.*.key' => ['required', 'uuid', 'distinct'],
             'courts.*.name' => ['required', 'string', 'max:255', 'distinct:ignore_case'],

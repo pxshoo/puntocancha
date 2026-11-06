@@ -18,6 +18,10 @@ class BookingCheckoutService
 
     public function start(array $data): BookingPayment
     {
+        if (auth()->user()?->role === 'player') {
+            $data['customer_email'] = auth()->user()->email;
+        }
+
         return DB::transaction(function () use ($data) {
             $club = $this->marketplace->publishedClubs()->where('slug', $data['club_slug'])->lockForUpdate()->firstOrFail();
             if (! $this->webpay->ready($club)) {
@@ -40,7 +44,7 @@ class BookingCheckoutService
                 ->where('start_time', '<', $end)->where('end_time', '>', $start)->exists()) {
                 throw ValidationException::withMessages(['start_time' => 'Este turno ya está reservado o tiene un pago en curso.']);
             }
-            $total = (int) ceil((float) $this->marketplace->slotPrice($court->default_hourly_rate, $club->slot_minutes));
+            $total = (int) ceil((float) app(BookingPricingService::class)->quote($court, $club, $start, $end));
             if ($total !== (int) $data['quoted_price']) {
                 throw ValidationException::withMessages(['quoted_price' => 'La tarifa cambió. Vuelve a seleccionar el turno.']);
             }
@@ -67,10 +71,43 @@ class BookingCheckoutService
                 'amount' => $data['payment_choice'] === 'deposit' ? $minimum : $total,
                 'choice' => $data['payment_choice'], 'status' => 'initialized', 'expires_at' => now()->addMinutes(20),
             ])->save();
+            if ($club->webpay_mode === 'payment_link') {
+                $payment->forceFill(['status' => 'manual_review', 'gateway_url' => $club->booking_payment_link])->save();
+
+                return $payment;
+            }
             $gateway = $this->webpay->create($payment);
             $payment->forceFill(['token' => $gateway['token'], 'token_hash' => hash('sha256', $gateway['token']), 'gateway_url' => $gateway['url']])->save();
 
             return $payment;
+        });
+    }
+
+    public function reviewLink(BookingPayment $payment, array $data): void
+    {
+        abort_unless(auth()->user()?->role === 'club_admin' && auth()->user()->club_id === $payment->club_id, 403);
+        DB::transaction(function () use ($payment, $data) {
+            Club::whereKey($payment->club_id)->lockForUpdate()->firstOrFail();
+            $locked = BookingPayment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+            if ($locked->mode !== 'payment_link' || $locked->status !== 'manual_review') {
+                throw ValidationException::withMessages(['payment' => 'Esta solicitud ya fue revisada.']);
+            }
+            $booking = Booking::withoutGlobalScope('club')->where('club_id', $locked->club_id)->whereKey($locked->booking_id)->lockForUpdate()->firstOrFail();
+            if ($data['action'] === 'reject') {
+                $locked->forceFill(['status' => 'failed'])->save();
+                $booking->forceFill(['status' => 'canceled'])->saveQuietly();
+
+                return;
+            }
+            if ((int) $data['amount'] !== $locked->amount || $booking->status !== 'pending_payment') {
+                throw ValidationException::withMessages(['amount' => 'El monto debe coincidir y la reserva debe seguir pendiente.']);
+            }
+            if (BookingPayment::where('club_id', $locked->club_id)->where('status', 'paid')->where('authorization_code', $data['authorization'])->exists()) {
+                throw ValidationException::withMessages(['authorization' => 'Esta autorización ya fue registrada.']);
+            }
+            $locked->forceFill(['status' => 'paid', 'authorization_code' => $data['authorization']])->save();
+            $booking->forceFill(['status' => 'confirmed', 'deposit_paid' => $locked->amount])->saveQuietly();
+            app(ConfirmationService::class)->booking($booking);
         });
     }
 
@@ -95,6 +132,7 @@ class BookingCheckoutService
             if (($data['status'] ?? null) === 'AUTHORIZED' && ($data['response_code'] ?? null) === 0) {
                 $booking->forceFill(['deposit_paid' => $locked->amount, 'status' => 'confirmed'])->saveQuietly();
                 $locked->forceFill(['status' => 'paid', 'authorization_code' => $data['authorization_code'] ?? null])->save();
+                app(ConfirmationService::class)->booking($booking, $locked->mode !== 'production');
             } elseif (in_array($data['status'] ?? null, ['FAILED', 'REVERSED', 'NULLIFIED'], true)
                 || (($data['status'] ?? null) === 'INITIALIZED' && $locked->expires_at->isPast())) {
                 $booking->forceFill(['status' => 'canceled'])->saveQuietly();

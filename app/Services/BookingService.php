@@ -46,7 +46,7 @@ class BookingService
                 throw new Exception("El horario seleccionado para {$court->name} ya está ocupado.");
             }
 
-            return Booking::create([
+            $booking = Booking::create([
                 'court_id' => $court->id,
                 'user_id' => $data['user_id'] ?? null,
                 'customer_name' => $data['customer_name'],
@@ -54,12 +54,15 @@ class BookingService
                 'customer_email' => $data['customer_email'] ?? null,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'total_price' => $data['total_price'],
+                'total_price' => app(BookingPricingService::class)->quote($court, auth()->user()->club, $startTime, $endTime),
                 'deposit_paid' => $data['deposit_paid'] ?? 0,
                 'status' => $data['status'] ?? 'pending',
                 'payment_method' => $data['payment_method'] ?? 'cash',
                 'notes' => $data['notes'] ?? null,
             ]);
+            app(ConfirmationService::class)->booking($booking);
+
+            return $booking;
         });
     }
 
@@ -90,7 +93,7 @@ class BookingService
             if ($overlap) {
                 throw ValidationException::withMessages(['start_time' => 'Este turno acaba de ser reservado. Selecciona otro horario.']);
             }
-            $price = $service->slotPrice($court->default_hourly_rate, $club->slot_minutes);
+            $price = app(BookingPricingService::class)->quote($court, $club, $start, $end);
             if (number_format((float) $data['quoted_price'], 2, '.', '') !== $price) {
                 throw ValidationException::withMessages(['quoted_price' => 'La tarifa cambió. Revisa el nuevo precio y selecciona el turno nuevamente.']);
             }
@@ -106,6 +109,7 @@ class BookingService
             ]);
             // The tenant is derived from the locked public court, never from player input.
             $booking->saveQuietly();
+            app(ConfirmationService::class)->booking($booking);
 
             return $booking;
         }, 3);

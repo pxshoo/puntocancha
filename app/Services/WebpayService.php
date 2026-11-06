@@ -13,7 +13,8 @@ class WebpayService
 {
     public function ready(Club $club): bool
     {
-        return $club->webpay_mode === 'integration'
+        return ($club->webpay_mode === 'payment_link' && filled($club->booking_payment_link))
+            || $club->webpay_mode === 'integration'
             || ($club->webpay_mode === 'production' && config('webpay.production_enabled') && $club->webpay_commerce_code && $club->webpay_api_key);
     }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountAccessController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClubBrandingController;
@@ -18,7 +19,9 @@ use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SubscriptionCheckoutController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\WebpayController;
+use App\Http\Middleware\EnsureSuperAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -86,8 +89,18 @@ Route::middleware(['auth', 'club.access'])->group(function () {
     Route::post('/inventario/{product}/stock', [InventoryController::class, 'adjust'])->name('inventory.adjust');
     Route::get('/reservas', [BookingController::class, 'index'])->name('bookings.index');
     Route::post('/reservas', [BookingController::class, 'store'])->name('bookings.store');
+    Route::post('/reservas/pagos/{payment}/revisar', [BookingController::class, 'reviewPayment'])->middleware('throttle:20,1')->name('bookings.payment.review');
 });
 
 require __DIR__.'/auth.php';
 
 Route::get('/reportes/excel', ReportExportController::class)->middleware(['auth', 'verified', 'club.access', 'throttle:10,1'])->name('reports.excel');
+
+Route::middleware(['auth', EnsureSuperAdmin::class])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/', [SuperAdminController::class, 'index'])->name('index');
+    Route::get('/clubes/{club}', [SuperAdminController::class, 'show'])->name('account');
+    Route::post('/clubes/{club}/acceso', [SuperAdminController::class, 'access'])->middleware('throttle:30,1')->name('access');
+    Route::post('/pagos/{payment}/revisar', [SuperAdminController::class, 'review'])->middleware('throttle:30,1')->name('review');
+});
+
+Route::get('/cuenta/estado', AccountAccessController::class)->middleware(['auth', 'throttle:30,1'])->name('account.status');

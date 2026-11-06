@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\EmailConfirmation;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
@@ -86,6 +87,11 @@ class SubscriptionCheckoutTest extends TestCase
         $this->gatewayResponse($payment);
         $this->get(route('subscription.return', ['token_ws' => $payment->token]))->assertRedirect(route('subscription.result', $payment));
         $this->assertSame('paid', $payment->fresh()->status);
+        $this->assertSame(1, EmailConfirmation::where('event_key', 'subscription:'.$payment->id)->count());
+        $confirmation = EmailConfirmation::where('event_key', 'subscription:'.$payment->id)->firstOrFail();
+        $this->assertSame('123456', $confirmation->payload['details']['Código de autorización']);
+        $this->assertTrue($confirmation->payload['demo']);
+        $this->assertNotEmpty($confirmation->payload['actions']);
         $this->assertFalse($user->fresh()->subscription_checkout_required);
         $subscription = Subscription::firstOrFail();
         $end = $subscription->ends_at->copy();

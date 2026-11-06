@@ -12,7 +12,7 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-900 dark:text-slate-100 antialiased selection:bg-emerald-600 dark:selection:bg-lime-300 dark:selection:text-slate-950 selection:text-white">
+<body class="pc-interface bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-900 dark:text-slate-100 antialiased selection:bg-emerald-600 dark:selection:bg-lime-300 dark:selection:text-slate-950 selection:text-white">
     <x-page-loading />
     <div class="relative min-h-screen lg:grid lg:grid-cols-2">
         <aside class="relative flex flex-col overflow-hidden border-b border-slate-300/10 dark:border-slate-700/10 px-6 py-8 lg:min-h-screen lg:border-b-0 lg:border-r lg:p-12 xl:p-16">

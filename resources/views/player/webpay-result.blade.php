@@ -8,6 +8,9 @@
         <p class="text-sm">Correo de contacto: {{ $payment->booking->customer_email }}</p>
         <x-court-location :court="$payment->booking->court" :club="$payment->club" />
         @if($payment->status === 'paid')<p class="text-sm">Autorización Webpay: {{ $payment->authorization_code }}</p><p class="whitespace-pre-line text-sm text-slate-500">{{ $payment->booking->cancellation_policy }}</p>
+        @elseif($payment->status === 'manual_review')
+            <div class="space-y-4 rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100"><h2 class="font-bold">Paga en el enlace del club</h2><p class="text-sm">Monto a pagar: <strong>&#36;{{ number_format($payment->amount, 0, ',', '.') }} CLP</strong>. Usa la orden {{ $payment->buy_order }} como referencia si el formulario lo permite.</p><a href="{{ $payment->gateway_url }}" target="_blank" rel="noopener noreferrer" class="flex min-h-14 items-center justify-center rounded-xl bg-brand px-5 font-bold text-brand-on">Abrir enlace de pago del club ↗</a><p class="text-sm">El club verificará el comprobante antes de confirmar tu reserva. No vuelvas a pagar si ya lo hiciste. El importe del formulario externo debe coincidir con el indicado aquí.</p></div>
+            <a href="{{ URL::signedRoute('webpay.receipt', ['payment' => $payment->id]) }}" class="inline-flex min-h-12 items-center font-semibold text-brand-content">Actualizar estado</a>
         @elseif($payment->status === 'initialized')
             <p class="text-sm">No vuelvas a pagar mientras se verifica esta operación. Conserva este enlace para consultar el estado.</p>
             <form method="POST" action="{{ URL::signedRoute('webpay.refresh', ['payment' => $payment->id]) }}">@csrf<x-primary-button>Consultar estado del pago</x-primary-button></form>

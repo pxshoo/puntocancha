@@ -13,7 +13,7 @@ class MarketplaceService
 {
     public function publishedClubs(): Builder
     {
-        return Club::where('marketplace_enabled', true)->whereNotNull('onboarding_completed_at')
+        return Club::where(fn ($query) => $query->whereNull('access_override')->orWhere('access_override', '!=', 'deny'))->where('marketplace_enabled', true)->whereNotNull('onboarding_completed_at')
             ->whereNotNull('city')->whereNotNull('address')->whereNotNull('phone')
             ->whereNotNull('opens_at')->whereNotNull('closes_at')->whereIn('slot_minutes', [60, 90]);
     }
@@ -46,7 +46,7 @@ class MarketplaceService
                 $slots[] = [
                     'start' => $start->format('H:i'), 'end' => $end->format('H:i'),
                     'available' => ! $busy && $start->isFuture(),
-                    'price' => $this->slotPrice($court->default_hourly_rate, $club->slot_minutes),
+                    'price' => app(BookingPricingService::class)->quote($court, $club, $start, $end),
                 ];
             }
 

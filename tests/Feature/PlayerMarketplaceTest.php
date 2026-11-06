@@ -54,8 +54,9 @@ class PlayerMarketplaceTest extends TestCase
         $this->get(route('player.club', $club->slug))->assertOk()
             ->assertSee('Calle Sur 123, Puerto Montt');
         $club->forceFill(['marketplace_enabled' => false])->save();
-        $this->get(route('public.bookings', $club->slug))->assertOk()
-            ->assertSee('Calle Sur 123, Puerto Montt');
+        $date = today()->addDay()->toDateString();
+        $this->get(route('public.bookings', ['club' => $club->slug, 'date' => $date, 'sport' => 'padel']))
+            ->assertRedirect(route('player.club', ['slug' => $club->slug, 'date' => $date, 'sport' => 'padel']));
     }
 
     public function test_owner_sees_publication_action_and_location_suggestions_without_auto_publication(): void

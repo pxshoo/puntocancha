@@ -20,11 +20,16 @@ class PlanSelection
                 'billing' => ['required', 'string', Rule::in(['monthly', 'annual'])],
             ])->validate();
             $key = ['1' => 'basic', '2' => 'pro', '3' => 'premium'][(string) $data['plan']] ?? $data['plan'];
-            $request->session()->put('selected_plan', ['key' => $key, 'billing' => $data['billing']]);
+            $request->session()->put('selected_plan', ['key' => $key, 'billing' => config('billing.test_prices') ? 'monthly' : $data['billing']]);
         }
         $selected = $request->session()->get('selected_plan');
         if (! $selected || ! array_key_exists($selected['key'] ?? '', config('plans'))) {
             return null;
+        }
+
+        if (config('billing.test_prices')) {
+            $selected['billing'] = 'monthly';
+            $request->session()->put('selected_plan', $selected);
         }
 
         return config('plans.'.$selected['key']) + $selected + ['id' => Plan::where('slug', $selected['key'])->value('id')];

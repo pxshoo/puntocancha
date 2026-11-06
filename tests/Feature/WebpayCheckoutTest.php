@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\BookingPayment;
 use App\Models\Club;
 use App\Models\Court;
+use App\Models\EmailConfirmation;
 use App\Models\User;
+use App\Services\BookingCheckoutService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -58,6 +60,21 @@ class WebpayCheckoutTest extends TestCase
         ], $overrides);
     }
 
+    public function test_logged_in_player_checkout_automatically_uses_account_email(): void
+    {
+        $court = $this->court();
+        $player = User::factory()->create(['role' => 'player', 'club_id' => null, 'email' => 'cuenta@example.com', 'phone' => '+56912345678']);
+        $this->actingAs($player);
+        $this->fakeCreate();
+        $this->post(route('webpay.store'), $this->data($court, ['customer_email' => 'otro@example.com']))->assertOk();
+        $payment = BookingPayment::firstOrFail();
+        $this->assertSame('cuenta@example.com', $payment->booking->customer_email);
+        $this->fakeResult($payment);
+        app(BookingCheckoutService::class)->settle($payment);
+        $confirmation = EmailConfirmation::where('event_key', 'booking:'.$payment->booking_id)->firstOrFail();
+        $this->assertSame('cuenta@example.com', $confirmation->recipient);
+    }
+
     public function test_club_settings_deposit_is_displayed_and_used_for_payment(): void
     {
         $court = $this->court();
@@ -93,6 +110,11 @@ class WebpayCheckoutTest extends TestCase
         $response = $this->get(route('webpay.return', ['token_ws' => $payment->token]));
         $response->assertRedirect();
         $this->assertSame('paid', $payment->fresh()->status);
+        $this->assertDatabaseCount('email_confirmations', 1);
+        $confirmation = EmailConfirmation::first();
+        $this->assertSame('123456', $confirmation->payload['details']['Código de autorización']);
+        $this->assertTrue($confirmation->payload['demo']);
+        $this->assertNotEmpty($confirmation->payload['actions']);
         $this->assertSame('confirmed', $payment->booking->fresh()->status);
         $this->assertSame('10000.00', $payment->booking->fresh()->deposit_paid);
         $this->get($response->headers->get('Location'))->assertOk()->assertSee('Reserva confirmada')->assertSee('20.000');

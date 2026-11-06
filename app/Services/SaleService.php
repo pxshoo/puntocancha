@@ -53,6 +53,7 @@ class SaleService
             }
 
             $sale = Sale::create([
+                'customer_email' => $data['customer_email'] ?? $booking?->customer_email,
                 'booking_id' => $booking?->id, 'user_id' => auth()->id(),
                 'request_key' => $data['request_key'],
                 'total_amount' => $this->decimal($total), 'cost_amount' => $this->decimal($cost),
@@ -75,6 +76,8 @@ class SaleService
                 ]);
             }
 
+            app(ConfirmationService::class)->sale($sale);
+
             return $sale;
         }, 3);
     }
@@ -86,6 +89,8 @@ class SaleService
             if ($sale->status === 'open') {
                 $sale->update(['status' => 'paid', 'payment_method' => $method, 'paid_at' => now()]);
             }
+
+            app(ConfirmationService::class)->sale($sale);
 
             return $sale;
         }, 3);

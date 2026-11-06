@@ -15,6 +15,7 @@ class StoreSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'customer_email' => ['nullable', 'email', 'max:255'],
             'request_key' => ['required', 'uuid'],
             'payment_method' => ['required', Rule::in(['cash', 'transfer', 'pos', 'booking'])],
             'booking_id' => ['nullable', 'required_if:payment_method,booking', 'prohibited_unless:payment_method,booking', 'integer', Rule::exists('bookings', 'id')->where('club_id', $this->user()->club_id)],

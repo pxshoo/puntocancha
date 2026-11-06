@@ -33,7 +33,7 @@ class OnboardingController extends Controller
 
     public function saveStep1(StoreOnboardingCourtsRequest $request, OnboardingService $service): RedirectResponse
     {
-        $service->saveCourts($request->user(), $request->validated('courts'));
+        $service->saveCourts($request->user(), $request->validated('courts'), $request->validated('club_name'));
 
         return redirect()->route('onboarding.step2');
     }

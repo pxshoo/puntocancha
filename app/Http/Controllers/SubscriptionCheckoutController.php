@@ -8,6 +8,7 @@ use App\Models\SubscriptionPayment;
 use App\Services\PlanSelection;
 use App\Services\SubscriptionCheckoutService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -45,9 +46,14 @@ class SubscriptionCheckoutController extends Controller
             $selection = $plans->capture($request);
         }
         $quote = $service->quote($selection);
-        $pending = SubscriptionPayment::where('user_id', $request->user()->id)->where('club_id', $request->user()->club_id)->where('status', 'initialized')->latest()->first();
+        $pending = SubscriptionPayment::where('user_id', $request->user()->id)->where('club_id', $request->user()->club_id)->whereIn('status', ['initialized', 'manual_review'])->latest()->first();
 
-        return view('subscription.checkout', ['selection' => $selection, 'quote' => $quote, 'pending' => $pending, 'requestKey' => (string) Str::uuid()]);
+        $linkTest = config('billing.mode') === 'payment_link' && config('billing.link_test_enabled') && $request->boolean('link_test');
+        if ($linkTest) {
+            $quote['amount'] = 100;
+        }
+
+        return view('subscription.checkout', ['linkTest' => $linkTest, 'selection' => $selection, 'quote' => $quote, 'pending' => $pending, 'requestKey' => (string) Str::uuid()]);
     }
 
     public function store(StartSubscriptionPaymentRequest $request, SubscriptionCheckoutService $service): Response|RedirectResponse
@@ -99,9 +105,20 @@ class SubscriptionCheckoutController extends Controller
         return to_route('subscription.result', $payment);
     }
 
-    public function result(Request $request, SubscriptionPayment $payment): Response
+    public function result(Request $request, SubscriptionPayment $payment): Response|JsonResponse
     {
         $this->authorizePayment($request, $payment);
+        if ($request->expectsJson()) {
+            $enabled = ($payment->status === 'paid' || $request->user()->club->access_override === 'allow') && $payment->mode !== 'payment_link_test'
+                && $request->user()->club->access_override !== 'deny';
+
+            return response()->json(['enabled' => $enabled, 'status' => $payment->status,
+                'redirect' => $enabled ? ($request->user()->onboarding_completed ? route('dashboard') : route('onboarding.step1')) : null])
+                ->header('Cache-Control', 'private, no-store');
+        }
+        if (in_array($payment->mode, ['payment_link', 'payment_link_test'], true)) {
+            return response()->view('subscription.link-payment', compact('payment'))->header('Cache-Control', 'no-store')->header('Referrer-Policy', 'no-referrer');
+        }
         if ($payment->status === 'paid') {
             $request->session()->forget('subscription_purchase');
         }

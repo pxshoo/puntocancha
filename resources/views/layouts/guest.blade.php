@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased">
+<body class="pc-interface min-h-screen bg-slate-50 dark:bg-slate-950 font-['Inter',sans-serif] text-slate-700 dark:text-slate-300 antialiased">
     <x-page-loading />
     <div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-5 py-12">
         <div class="pointer-events-none absolute -top-52 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-3xl" aria-hidden="true"></div>

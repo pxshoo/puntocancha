@@ -23,17 +23,17 @@ class OnboardingService
     private function activePlan(User $user): Plan
     {
         $subscription = $this->subscription($user);
-        if (! $subscription || ! $subscription->isCurrent()) {
+        if (! $subscription || (! $subscription->isCurrent() && $user->club->access_override !== 'allow')) {
             throw ValidationException::withMessages(['subscription' => 'La prueba o suscripción no está vigente. Contacta a soporte para activar tu plan.']);
         }
 
         return $subscription->plan;
     }
 
-    public function saveCourts(User $user, array $rows): void
+    public function saveCourts(User $user, array $rows, ?string $clubName = null): void
     {
-        DB::transaction(function () use ($user, $rows) {
-            Club::whereKey($user->club_id)->lockForUpdate()->firstOrFail();
+        DB::transaction(function () use ($user, $rows, $clubName) {
+            $club = Club::whereKey($user->club_id)->lockForUpdate()->firstOrFail();
             $lockedUser = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
             if ($lockedUser->onboarding_completed) {
                 return;
@@ -47,6 +47,10 @@ class OnboardingService
             foreach ($rows as $row) {
                 $court = Court::firstOrNew(['setup_key' => $row['key']]);
                 $court->fill(collect($row)->except('key')->all())->save();
+            }
+            if ($clubName !== null) {
+                $club->update(['name' => $clubName]);
+                $lockedUser->forceFill(['club_name' => $clubName])->save();
             }
         }, 3);
     }
@@ -69,6 +73,7 @@ class OnboardingService
             if ($opening->diffInMinutes($closing) < (int) $data['slot_minutes']) {
                 throw ValidationException::withMessages(['closes_at' => 'El horario debe permitir al menos un turno completo.']);
             }
+            $club->forceFill(collect($data)->only(['city', 'address', 'phone', 'marketplace_enabled'])->all());
             $club->forceFill([
                 'opens_at' => $data['opens_at'], 'closes_at' => $data['closes_at'],
                 'slot_minutes' => $data['slot_minutes'], 'onboarding_completed_at' => now(),
